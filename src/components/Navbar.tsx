@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Menu, X, Bell, MessageCircle, Heart, ChevronDown, User } from "lucide-react";
+import { Search, Menu, X, Bell, MessageCircle, Heart, ChevronDown, User, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,11 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { categories } from "@/lib/data";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,18 +26,24 @@ const Navbar = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const displayInitials = profile?.display_name
+    ? profile.display_name.slice(0, 2).toUpperCase()
+    : user?.email?.slice(0, 2).toUpperCase() || "U";
+
   return (
     <header className="sticky top-0 z-50 bg-card border-b border-border">
-      {/* Top bar */}
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 gap-4">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-1 shrink-0">
             <span className="text-2xl font-display font-bold text-gradient">giglance</span>
             <span className="text-primary text-2xl font-bold">.</span>
           </Link>
 
-          {/* Search bar - hidden on mobile */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">
             <div className="relative w-full flex">
               <Input
@@ -51,7 +59,6 @@ const Navbar = () => {
             </div>
           </form>
 
-          {/* Right side actions */}
           <div className="flex items-center gap-2">
             <nav className="hidden lg:flex items-center gap-1">
               <DropdownMenu>
@@ -81,37 +88,61 @@ const Navbar = () => {
               </Link>
             </nav>
 
-            <div className="hidden md:flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
-                <MessageCircle className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
-                <Heart className="h-4 w-4" />
-              </Button>
-              <Link to="/orders">
-                <Button variant="ghost" size="sm" className="text-sm">Orders</Button>
-              </Link>
-            </div>
+            {user ? (
+              <>
+                <div className="hidden md:flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
+                    <MessageCircle className="h-4 w-4" />
+                  </Button>
+                  <Link to="/favorites">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
+                      <Heart className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link to="/orders">
+                    <Button variant="ghost" size="sm" className="text-sm">Orders</Button>
+                  </Link>
+                </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-primary/10 text-primary hover:bg-primary/20">
-                  <User className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild><Link to="/profile" className="cursor-pointer">Profile</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="/dashboard" className="cursor-pointer">Dashboard</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="/orders" className="cursor-pointer">Orders</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="/favorites" className="cursor-pointer">Favorites</Link></DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link to="/settings" className="cursor-pointer">Settings</Link></DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer text-destructive">Sign Out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-primary/10 text-primary hover:bg-primary/20 font-bold text-xs">
+                      {displayInitials}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <div className="px-2 py-1.5">
+                      <p className="text-sm font-medium text-foreground">{profile?.display_name || "User"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild><Link to="/profile" className="cursor-pointer">Profile</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link to="/dashboard" className="cursor-pointer">Dashboard</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link to="/orders" className="cursor-pointer">Orders</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link to="/favorites" className="cursor-pointer">Favorites</Link></DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild><Link to="/settings" className="cursor-pointer">Settings</Link></DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleSignOut}>
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link to="/login">
+                  <Button variant="ghost" size="sm" className="text-sm font-medium">Sign In</Button>
+                </Link>
+                <Link to="/signup">
+                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium">
+                    Join
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             <Button variant="ghost" size="icon" className="md:hidden h-9 w-9" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -120,7 +151,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Category bar - desktop */}
+      {/* Category bar */}
       <div className="hidden lg:block border-t border-border bg-card">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-6 h-10 overflow-x-auto scrollbar-hide">
@@ -157,8 +188,18 @@ const Navbar = () => {
           <nav className="flex flex-col gap-2">
             <Link to="/categories" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
             <Link to="/become-seller" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Become a Seller</Link>
-            <Link to="/orders" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Orders</Link>
-            <Link to="/dashboard" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+            {user ? (
+              <>
+                <Link to="/orders" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Orders</Link>
+                <Link to="/dashboard" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+                <button className="py-2 text-sm font-medium text-destructive text-left" onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}>Sign Out</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+                <Link to="/signup" className="py-2 text-sm font-medium text-primary" onClick={() => setMobileMenuOpen(false)}>Join</Link>
+              </>
+            )}
           </nav>
         </div>
       )}

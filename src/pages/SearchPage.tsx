@@ -22,11 +22,11 @@ const SearchPage = () => {
     let results = [...gigs];
     if (query) {
       const q = query.toLowerCase();
-      results = results.filter(g =>
-        g.title.toLowerCase().includes(q) ||
-        g.tags.some(t => t.toLowerCase().includes(q)) ||
-        g.category.toLowerCase().includes(q)
-      );
+      const words = q.split(/\s+/).filter(Boolean);
+      results = results.filter(g => {
+        const text = `${g.title} ${g.tags.join(" ")} ${g.category} ${g.seller.name}`.toLowerCase();
+        return words.some(w => text.includes(w)) || text.includes(q);
+      });
     }
     if (selectedCategory !== "all") {
       results = results.filter(g => g.category === selectedCategory);

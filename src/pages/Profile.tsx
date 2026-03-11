@@ -35,8 +35,12 @@ const Profile = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="rounded-lg border border-border bg-card p-6 text-center shadow-card">
-              <div className="h-24 w-24 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl font-bold font-display mx-auto mb-4">
-                {initials || "?"}
+              <div className="h-24 w-24 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl font-bold font-display mx-auto mb-4 overflow-hidden">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+                ) : (
+                  initials || "?"
+                )}
               </div>
               <h2 className="text-xl font-display font-bold text-foreground">
                 {profile?.display_name || "Your Name"}

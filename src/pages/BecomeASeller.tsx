@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -5,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, CheckCircle, DollarSign, Globe, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, CheckCircle, DollarSign, Globe, TrendingUp, Users, Loader2 } from "lucide-react";
 import { categories } from "@/lib/data";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const benefits = [
   { icon: Globe, title: "Reach Global Clients", desc: "Access millions of buyers worldwide looking for your skills" },
@@ -18,6 +22,64 @@ const benefits = [
 ];
 
 const BecomeASeller = () => {
+  const { user, profile, refreshProfile } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [deliveryDays, setDeliveryDays] = useState("");
+  const [tags, setTags] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handlePublish = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (!title.trim() || !category || !price) {
+      toast({ title: "Please fill in title, category, and price", variant: "destructive" });
+      return;
+    }
+
+    setSubmitting(true);
+
+    // If user isn't a seller yet, mark them as one
+    if (!profile?.is_seller) {
+      await supabase
+        .from("profiles")
+        .update({ is_seller: true })
+        .eq("user_id", user.id);
+    }
+
+    const tagsArray = tags
+      .split(",")
+      .map(t => t.trim())
+      .filter(Boolean);
+
+    const { error } = await supabase.from("gigs").insert({
+      seller_id: user.id,
+      title: title.trim(),
+      category,
+      description: description.trim() || null,
+      price: parseFloat(price),
+      delivery_days: parseInt(deliveryDays) || 3,
+      tags: tagsArray,
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Failed to create gig", description: error.message, variant: "destructive" });
+    } else {
+      await refreshProfile();
+      toast({ title: "Gig published! 🎉", description: "Your gig is now live." });
+      navigate("/dashboard");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -67,16 +129,16 @@ const BecomeASeller = () => {
           <p className="text-muted-foreground text-center mb-8">Fill in the details below to get started</p>
 
           <Card className="p-8 shadow-card">
-            <form className="space-y-6">
+            <div className="space-y-6">
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Gig Title</label>
-                <Input placeholder="I will..." className="h-11" />
+                <Input placeholder="I will..." className="h-11" value={title} onChange={e => setTitle(e.target.value)} />
                 <p className="text-xs text-muted-foreground mt-1">Start with "I will" and be specific about what you offer</p>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Category</label>
-                <Select>
+                <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger className="h-11"><SelectValue placeholder="Select a category" /></SelectTrigger>
                   <SelectContent>
                     {categories.map(cat => (
@@ -88,29 +150,37 @@ const BecomeASeller = () => {
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Description</label>
-                <Textarea placeholder="Describe your service in detail..." rows={5} />
+                <Textarea placeholder="Describe your service in detail..." rows={5} value={description} onChange={e => setDescription(e.target.value)} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">Starting Price ($)</label>
-                  <Input type="number" placeholder="25" min="5" className="h-11" />
+                  <Input type="number" placeholder="25" min="5" className="h-11" value={price} onChange={e => setPrice(e.target.value)} />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">Delivery Time (days)</label>
-                  <Input type="number" placeholder="3" min="1" className="h-11" />
+                  <Input type="number" placeholder="3" min="1" className="h-11" value={deliveryDays} onChange={e => setDeliveryDays(e.target.value)} />
                 </div>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Tags</label>
-                <Input placeholder="e.g. logo, branding, design (comma separated)" className="h-11" />
+                <Input placeholder="e.g. logo, branding, design (comma separated)" className="h-11" value={tags} onChange={e => setTags(e.target.value)} />
               </div>
 
-              <Button type="button" className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base">
-                <CheckCircle className="h-5 w-5 mr-2" /> Publish Gig
+              <Button
+                onClick={handlePublish}
+                disabled={submitting}
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base"
+              >
+                {submitting ? (
+                  <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Publishing...</>
+                ) : (
+                  <><CheckCircle className="h-5 w-5 mr-2" /> Publish Gig</>
+                )}
               </Button>
-            </form>
+            </div>
           </Card>
         </div>
       </section>

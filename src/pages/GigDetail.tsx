@@ -1,20 +1,99 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { gigs } from "@/lib/data";
+import { useGig } from "@/hooks/useGigs";
 import { categoryGradients, categoryEmojis } from "@/lib/categories";
+import { sellerInitials } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Star, Clock, RefreshCw, Check, Heart, Share2, ArrowLeft, MessageCircle, MapPin, Award, TrendingUp } from "lucide-react";
+import { Star, Clock, RefreshCw, Check, Heart, Share2, ArrowLeft, MessageCircle, MapPin, Award, TrendingUp, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 const GigDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const gig = gigs.find(g => g.id === id);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: gig, isLoading } = useGig(id);
+
+  // ── Favorites ────────────────────────────────────────────────────────────
+  const { data: isFavorited } = useQuery({
+    queryKey: ["favorite", user?.id, id],
+    enabled: !!user && !!id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", user!.id)
+        .eq("gig_id", id!)
+        .maybeSingle();
+      return !!data;
+    },
+  });
+
+  const toggleFavorite = useMutation({
+    mutationFn: async () => {
+      if (!user) { navigate("/login"); return; }
+      if (isFavorited) {
+        await supabase.from("favorites").delete().eq("user_id", user.id).eq("gig_id", id!);
+      } else {
+        await supabase.from("favorites").insert({ user_id: user.id, gig_id: id! });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorite", user?.id, id] });
+      queryClient.invalidateQueries({ queryKey: ["favorites", user?.id] });
+      toast({ title: isFavorited ? "Removed from favorites" : "Saved to favorites" });
+    },
+  });
+
+  // ── Reviews ───────────────────────────────────────────────────────────────
+  const { data: reviews = [] } = useQuery({
+    queryKey: ["reviews", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("id, rating, comment, created_at, buyer_id")
+        .eq("gig_id", id!)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (!data || data.length === 0) return [];
+
+      // Fetch reviewer display names
+      const buyerIds = [...new Set(data.map(r => r.buyer_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, country")
+        .in("user_id", buyerIds);
+
+      const profileMap = new Map((profiles ?? []).map(p => [p.user_id, p]));
+      return data.map(r => ({
+        ...r,
+        reviewer: profileMap.get(r.buyer_id),
+      }));
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!gig) {
     return (
@@ -30,13 +109,14 @@ const GigDetail = () => {
   }
 
   const packages = [
-    { name: "Basic", price: gig.price, delivery: gig.deliveryDays, revisions: 2, features: ["Source file", "1 concept"] },
-    { name: "Standard", price: Math.round(gig.price * 2), delivery: gig.deliveryDays + 2, revisions: 5, features: ["Source file", "3 concepts", "Social media kit"] },
-    { name: "Premium", price: Math.round(gig.price * 3.5), delivery: gig.deliveryDays + 5, revisions: -1, features: ["Source file", "5 concepts", "Social media kit", "Brand guidelines", "Priority support"] },
+    { name: "Basic", price: gig.price, delivery: gig.delivery_days, revisions: 2, features: ["Source file", "1 concept"] },
+    { name: "Standard", price: Math.round(gig.price * 2), delivery: gig.delivery_days + 2, revisions: 5, features: ["Source file", "3 concepts", "Social media kit"] },
+    { name: "Premium", price: Math.round(gig.price * 3.5), delivery: gig.delivery_days + 5, revisions: -1, features: ["Source file", "5 concepts", "Social media kit", "Brand guidelines", "Priority support"] },
   ];
 
   const gradient = categoryGradients[gig.category] || "from-primary/20 to-accent/20";
   const emoji = categoryEmojis[gig.category] || "💼";
+  const initials = sellerInitials(gig.seller?.display_name);
 
   const handleContinueToCheckout = (pkgName: string) => {
     if (!user) { navigate("/login"); return; }
@@ -46,6 +126,17 @@ const GigDetail = () => {
   const handleContactSeller = () => {
     navigate(user ? "/messages" : "/login");
   };
+
+  const totalRating = reviews.reduce((s, r) => s + r.rating, 0);
+  const avgRating = reviews.length > 0 ? Math.round((totalRating / reviews.length) * 10) / 10 : null;
+
+  const ratingBreakdown = [5, 4, 3, 2, 1].map(stars => ({
+    stars,
+    count: reviews.filter(r => r.rating === stars).length,
+    pct: reviews.length > 0
+      ? Math.round((reviews.filter(r => r.rating === stars).length / reviews.length) * 100)
+      : 0,
+  }));
 
   const faqs = [
     { q: "How many revisions do I get?", a: "It depends on the package you choose. Basic includes 2 revisions, Standard includes 5, and Premium offers unlimited revisions until you're fully satisfied." },
@@ -62,7 +153,9 @@ const GigDetail = () => {
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
           <Link to="/" className="hover:text-primary"><ArrowLeft className="h-4 w-4 inline mr-1" />Home</Link>
           <span>/</span>
-          <Link to={`/categories/${gig.category}`} className="hover:text-primary capitalize">{gig.category.replace("-", " & ").replace("tech", "Tech")}</Link>
+          <Link to={`/categories/${gig.category}`} className="hover:text-primary capitalize">
+            {gig.category.replace("-", " & ").replace("tech", "Tech")}
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -72,29 +165,38 @@ const GigDetail = () => {
 
             {/* Seller info bar */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">
-                {gig.seller.avatar}
+              <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold overflow-hidden">
+                {gig.seller?.avatar_url
+                  ? <img src={gig.seller.avatar_url} alt={initials} className="h-full w-full object-cover" />
+                  : initials}
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">{gig.seller.name}</span>
-                  <span>{gig.seller.country}</span>
-                  {gig.seller.level === "Top Rated" && <Badge className="bg-primary/10 text-primary border-0 text-xs">Top Rated</Badge>}
-                  {gig.isPro && <Badge className="bg-badge-pro text-badge-pro-foreground border-0 text-xs">PRO</Badge>}
+                  <span className="font-semibold text-foreground">{gig.seller?.display_name || "Freelancer"}</span>
+                  {gig.seller?.country && <span>{gig.seller.country}</span>}
+                  {gig.seller?.seller_level === "Top Rated" && (
+                    <Badge className="bg-primary/10 text-primary border-0 text-xs">Top Rated</Badge>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Star className="h-3.5 w-3.5 fill-star text-star" />
-                  <span className="font-semibold">{gig.seller.rating}</span>
-                  <span className="text-muted-foreground">({gig.seller.reviews.toLocaleString()} reviews)</span>
-                </div>
+                {avgRating && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3.5 w-3.5 fill-star text-star" />
+                    <span className="font-semibold">{avgRating}</span>
+                    <span className="text-muted-foreground">({reviews.length.toLocaleString()} reviews)</span>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Gig image */}
             <div className="aspect-video bg-muted rounded-lg mb-8 overflow-hidden">
-              <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-                <span className="text-8xl opacity-30">{emoji}</span>
-              </div>
+              {gig.image_url ? (
+                <img src={gig.image_url} alt={gig.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+                  <span className="text-8xl opacity-30">{emoji}</span>
+                </div>
+              )}
             </div>
 
             {/* Description */}
@@ -106,7 +208,6 @@ const GigDetail = () => {
                 <h3 className="text-foreground font-semibold">What you'll get:</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Professional quality deliverables</li>
-                  <li>Unlimited revisions until you're satisfied</li>
                   <li>Fast and clear communication</li>
                   <li>Source files included</li>
                   <li>100% original and unique work</li>
@@ -114,53 +215,63 @@ const GigDetail = () => {
               </div>
 
               {/* Tags */}
-              <div className="flex flex-wrap gap-2 mt-4">
-                {gig.tags.map(tag => (
-                  <Link key={tag} to={`/search?q=${encodeURIComponent(tag)}`}>
-                    <Badge variant="secondary" className="text-xs hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors">
-                      {tag}
-                    </Badge>
-                  </Link>
-                ))}
-              </div>
+              {gig.tags && gig.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {gig.tags.map(tag => (
+                    <Link key={tag} to={`/search?q=${encodeURIComponent(tag)}`}>
+                      <Badge variant="secondary" className="text-xs hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors">
+                        {tag}
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Seller profile card */}
             <div className="mb-8 p-5 rounded-xl border border-border bg-card shadow-card">
               <h2 className="text-xl font-display font-semibold text-foreground mb-4">About the Seller</h2>
               <div className="flex items-start gap-4">
-                <div className="h-16 w-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-bold shrink-0">
-                  {gig.seller.avatar}
+                <div className="h-16 w-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-2xl font-bold shrink-0 overflow-hidden">
+                  {gig.seller?.avatar_url
+                    ? <img src={gig.seller.avatar_url} alt={initials} className="h-full w-full object-cover" />
+                    : initials}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-display font-bold text-foreground text-lg">{gig.seller.name}</span>
-                    <span>{gig.seller.country}</span>
-                    {gig.seller.level === "Top Rated" && (
+                    <span className="font-display font-bold text-foreground text-lg">{gig.seller?.display_name || "Freelancer"}</span>
+                    {gig.seller?.country && <span>{gig.seller.country}</span>}
+                    {gig.seller?.seller_level === "Top Rated" && (
                       <Badge className="bg-primary/10 text-primary border-0 text-xs">Top Rated</Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">Professional freelancer specializing in {gig.category.replace("-", " & ")} services with 5+ years of experience.</p>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Professional freelancer specializing in {gig.category.replace("-", " & ")} services.
+                  </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Star className="h-4 w-4 fill-star text-star shrink-0" />
-                      <span><span className="font-semibold text-foreground">{gig.seller.rating}</span> ({gig.seller.reviews.toLocaleString()})</span>
-                    </div>
+                    {avgRating && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Star className="h-4 w-4 fill-star text-star shrink-0" />
+                        <span><span className="font-semibold text-foreground">{avgRating}</span> ({reviews.length})</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-1.5 text-muted-foreground">
                       <TrendingUp className="h-4 w-4 shrink-0" />
                       <span><span className="font-semibold text-foreground">98%</span> Completion</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Award className="h-4 w-4 shrink-0" />
-                      <span className="font-semibold text-foreground">{gig.seller.level}</span>
-                    </div>
+                    {gig.seller?.seller_level && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Award className="h-4 w-4 shrink-0" />
+                        <span className="font-semibold text-foreground">{gig.seller.seller_level}</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-1.5 text-muted-foreground">
                       <Clock className="h-4 w-4 shrink-0" />
                       <span>Responds within <span className="font-semibold text-foreground">1 hr</span></span>
                     </div>
                     <div className="flex items-center gap-1.5 text-muted-foreground">
                       <MapPin className="h-4 w-4 shrink-0" />
-                      <span>Member since <span className="font-semibold text-foreground">2021</span></span>
+                      <span>Member since <span className="font-semibold text-foreground">2024</span></span>
                     </div>
                   </div>
                 </div>
@@ -191,61 +302,74 @@ const GigDetail = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-display font-semibold text-foreground">Reviews</h2>
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 fill-star text-star" />
-                  <span className="text-2xl font-display font-bold text-foreground">{gig.seller.rating}</span>
-                  <span className="text-muted-foreground text-sm">({gig.seller.reviews.toLocaleString()})</span>
-                </div>
+                {avgRating && (
+                  <div className="flex items-center gap-2">
+                    <Star className="h-5 w-5 fill-star text-star" />
+                    <span className="text-2xl font-display font-bold text-foreground">{avgRating}</span>
+                    <span className="text-muted-foreground text-sm">({reviews.length.toLocaleString()})</span>
+                  </div>
+                )}
               </div>
 
-              {/* Rating breakdown */}
-              <div className="mb-6 p-4 rounded-lg bg-muted/30 border border-border">
-                {[5, 4, 3, 2, 1].map(stars => {
-                  const pct = stars === 5 ? 78 : stars === 4 ? 16 : stars === 3 ? 4 : stars === 2 ? 1 : 1;
-                  return (
-                    <div key={stars} className="flex items-center gap-3 mb-1.5 last:mb-0">
-                      <div className="flex items-center gap-0.5 shrink-0">
-                        {Array.from({ length: stars }).map((_, j) => (
-                          <Star key={j} className="h-3 w-3 fill-star text-star" />
-                        ))}
-                      </div>
-                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-star rounded-full" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="text-xs text-muted-foreground w-6 text-right">{pct}%</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="space-y-4">
-                {[
-                  { user: "John D.", rating: 5, text: "Absolutely fantastic work! Delivered ahead of schedule and exceeded all my expectations. Will definitely order again.", date: "2 weeks ago", country: "🇺🇸" },
-                  { user: "Sarah M.", rating: 5, text: "Very professional and responsive. The quality of work was outstanding. Highly recommended!", date: "1 month ago", country: "🇬🇧" },
-                  { user: "Alex K.", rating: 4, text: "Great service overall. Communication was excellent and revisions were handled quickly.", date: "2 months ago", country: "🇩🇪" },
-                ].map((review, i) => (
-                  <div key={i} className="p-4 rounded-lg border border-border bg-card">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
-                        {review.user[0]}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm font-medium text-foreground">{review.user}</span>
-                          <span className="text-xs">{review.country}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {Array.from({ length: review.rating }).map((_, j) => (
+              {reviews.length > 0 ? (
+                <>
+                  {/* Rating breakdown */}
+                  <div className="mb-6 p-4 rounded-lg bg-muted/30 border border-border">
+                    {ratingBreakdown.map(({ stars, pct }) => (
+                      <div key={stars} className="flex items-center gap-3 mb-1.5 last:mb-0">
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          {Array.from({ length: stars }).map((_, j) => (
                             <Star key={j} className="h-3 w-3 fill-star text-star" />
                           ))}
-                          <span className="text-xs text-muted-foreground ml-1">{review.date}</span>
                         </div>
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-star rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-xs text-muted-foreground w-6 text-right">{pct}%</span>
                       </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{review.text}</p>
+                    ))}
                   </div>
-                ))}
-              </div>
+
+                  <div className="space-y-4">
+                    {reviews.map((review) => {
+                      const displayName = (review.reviewer as { display_name?: string | null } | undefined)?.display_name || "Buyer";
+                      const country = (review.reviewer as { country?: string | null } | undefined)?.country;
+                      const initials = displayName.slice(0, 1).toUpperCase();
+                      const daysAgo = Math.floor((Date.now() - new Date(review.created_at).getTime()) / (24 * 60 * 60 * 1000));
+                      const dateLabel = daysAgo === 0 ? "Today" : daysAgo === 1 ? "1 day ago" : `${daysAgo} days ago`;
+                      return (
+                        <div key={review.id} className="p-4 rounded-lg border border-border bg-card">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
+                              {initials}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1">
+                                <span className="text-sm font-medium text-foreground">{displayName}</span>
+                                {country && <span className="text-xs">{country}</span>}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {Array.from({ length: review.rating }).map((_, j) => (
+                                  <Star key={j} className="h-3 w-3 fill-star text-star" />
+                                ))}
+                                <span className="text-xs text-muted-foreground ml-1">{dateLabel}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {review.comment && (
+                            <p className="text-sm text-muted-foreground">{review.comment}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-10 border border-dashed border-border rounded-lg">
+                  <Star className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">No reviews yet. Be the first to order!</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -277,7 +401,10 @@ const GigDetail = () => {
                           </li>
                         ))}
                       </ul>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11" onClick={() => handleContinueToCheckout(pkg.name)}>
+                      <Button
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11"
+                        onClick={() => handleContinueToCheckout(pkg.name)}
+                      >
                         Continue (₹{pkg.price})
                       </Button>
                     </TabsContent>
@@ -290,8 +417,14 @@ const GigDetail = () => {
               </Button>
 
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="flex-1 text-muted-foreground hover:text-foreground">
-                  <Heart className="h-4 w-4 mr-1" /> Save
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`flex-1 ${isFavorited ? "text-destructive" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => toggleFavorite.mutate()}
+                >
+                  <Heart className={`h-4 w-4 mr-1 ${isFavorited ? "fill-destructive" : ""}`} />
+                  {isFavorited ? "Saved" : "Save"}
                 </Button>
                 <Button variant="ghost" size="sm" className="flex-1 text-muted-foreground hover:text-foreground">
                   <Share2 className="h-4 w-4 mr-1" /> Share

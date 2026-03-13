@@ -9,12 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Star, Clock, RefreshCw, Check, ShieldCheck, CreditCard,
-  ChevronRight, ArrowLeft, Lock, Info
+  ChevronRight, ArrowLeft, Lock, Info, Loader2
 } from "lucide-react";
-import { gigs } from "@/lib/data";
+import { useGig } from "@/hooks/useGigs";
 import { categoryEmojis } from "@/lib/categories";
+import { sellerInitials } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const CheckoutPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,8 +32,20 @@ const CheckoutPage = () => {
   const [cvv, setCvv] = useState("");
   const [cardName, setCardName] = useState("");
   const [placing, setPlacing] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
-  const gig = gigs.find(g => g.id === id);
+  const { data: gig, isLoading } = useGig(id);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="h-10 w-10 text-primary animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   if (!gig) {
     return (
@@ -46,9 +60,9 @@ const CheckoutPage = () => {
   }
 
   const packages = {
-    basic: { name: "Basic", price: gig.price, delivery: gig.deliveryDays, revisions: 2, features: ["Source file", "1 concept"] },
-    standard: { name: "Standard", price: Math.round(gig.price * 2), delivery: gig.deliveryDays + 2, revisions: 5, features: ["Source file", "3 concepts", "Social media kit"] },
-    premium: { name: "Premium", price: Math.round(gig.price * 3.5), delivery: gig.deliveryDays + 5, revisions: -1, features: ["Source file", "5 concepts", "Social media kit", "Brand guidelines"] },
+    basic: { name: "Basic", price: gig.price, delivery: gig.delivery_days, revisions: 2, features: ["Source file", "1 concept"] },
+    standard: { name: "Standard", price: Math.round(gig.price * 2), delivery: gig.delivery_days + 2, revisions: 5, features: ["Source file", "3 concepts", "Social media kit"] },
+    premium: { name: "Premium", price: Math.round(gig.price * 3.5), delivery: gig.delivery_days + 5, revisions: -1, features: ["Source file", "5 concepts", "Social media kit", "Brand guidelines"] },
   };
 
   const selectedPkg = packages[packageName as keyof typeof packages] || packages.standard;
@@ -72,10 +86,40 @@ const CheckoutPage = () => {
       return;
     }
     setPlacing(true);
-    await new Promise(r => setTimeout(r, 1500));
-    setPlacing(false);
-    setStep("done");
+    try {
+      const dueAt = new Date(Date.now() + selectedPkg.delivery * 24 * 60 * 60 * 1000).toISOString();
+
+      const { data: order, error } = await supabase
+        .from("orders")
+        .insert({
+          buyer_id: user.id,
+          seller_id: gig.seller_id,
+          gig_id: gig.id,
+          package: packageName,
+          price: selectedPkg.price,
+          delivery_days: selectedPkg.delivery,
+          requirements: requirements.trim() || null,
+          due_at: dueAt,
+          status: "pending",
+        })
+        .select("id")
+        .single();
+
+      if (error) throw error;
+      setOrderId(order?.id ?? null);
+      setStep("done");
+    } catch {
+      toast({
+        title: "Order failed",
+        description: "Could not place your order. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setPlacing(false);
+    }
   };
+
+  const initials = sellerInitials(gig.seller?.display_name);
 
   if (step === "done") {
     return (
@@ -95,12 +139,14 @@ const CheckoutPage = () => {
             </p>
             <div className="bg-card border border-border rounded-xl p-5 mb-8 text-left">
               <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
-                  {gig.seller.avatar}
+                <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden">
+                  {gig.seller?.avatar_url
+                    ? <img src={gig.seller.avatar_url} alt={initials} className="h-full w-full object-cover" />
+                    : initials}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm">{gig.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">by {gig.seller.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">by {gig.seller?.display_name || "Seller"}</p>
                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {selectedPkg.delivery} days delivery</span>
                     <span className="font-semibold text-foreground">₹{selectedPkg.price}</span>
@@ -181,12 +227,16 @@ const CheckoutPage = () => {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-foreground text-sm leading-snug mb-1">{gig.title}</h3>
                       <div className="flex items-center gap-1 mb-2">
-                        <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold">
-                          {gig.seller.avatar}
+                        <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold shrink-0">
+                          {initials}
                         </div>
-                        <span className="text-xs text-muted-foreground">{gig.seller.name}</span>
-                        <Star className="h-3 w-3 fill-star text-star ml-1" />
-                        <span className="text-xs font-semibold">{gig.seller.rating}</span>
+                        <span className="text-xs text-muted-foreground">{gig.seller?.display_name || "Seller"}</span>
+                        {gig.avg_rating && (
+                          <>
+                            <Star className="h-3 w-3 fill-star text-star ml-1" />
+                            <span className="text-xs font-semibold">{gig.avg_rating}</span>
+                          </>
+                        )}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="outline" className="text-xs">
@@ -322,13 +372,11 @@ const CheckoutPage = () => {
                   >
                     {placing ? (
                       <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                         Processing...
                       </span>
                     ) : (
-                      <>
-                       <Lock className="h-4 w-4 mr-2" /> Confirm & Pay ₹{total.toFixed(2)}
-                      </>
+                      <><Lock className="h-4 w-4 mr-2" /> Confirm & Pay ₹{total.toFixed(2)}</>
                     )}
                   </Button>
                 </div>

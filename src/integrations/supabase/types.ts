@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      favorites: {
+        Row: {
+          created_at: string
+          gig_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gig_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gig_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       gigs: {
         Row: {
           category: string
@@ -59,6 +80,81 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          buyer_id: string
+          completed_at: string | null
+          created_at: string
+          delivery_days: number
+          due_at: string | null
+          gig_id: string
+          id: string
+          package: string
+          price: number
+          requirements: string | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          completed_at?: string | null
+          created_at?: string
+          delivery_days?: number
+          due_at?: string | null
+          gig_id: string
+          id?: string
+          package?: string
+          price: number
+          requirements?: string | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          completed_at?: string | null
+          created_at?: string
+          delivery_days?: number
+          due_at?: string | null
+          gig_id?: string
+          id?: string
+          package?: string
+          price?: number
+          requirements?: string | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      private_feedback: {
+        Row: {
+          buyer_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          order_id: string
+          rating: number
+        }
+        Insert: {
+          buyer_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          order_id: string
+          rating: number
+        }
+        Update: {
+          buyer_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string
+          rating?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -101,6 +197,45 @@ export type Database = {
           skills?: string[] | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          attachment_url: string | null
+          buyer_id: string
+          comment: string | null
+          created_at: string
+          gig_id: string
+          id: string
+          order_id: string
+          rating: number
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          buyer_id: string
+          comment?: string | null
+          created_at?: string
+          gig_id: string
+          id?: string
+          order_id: string
+          rating: number
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_url?: string | null
+          buyer_id?: string
+          comment?: string | null
+          created_at?: string
+          gig_id?: string
+          id?: string
+          order_id?: string
+          rating?: number
+          seller_id?: string
+          updated_at?: string
         }
         Relationships: []
       }

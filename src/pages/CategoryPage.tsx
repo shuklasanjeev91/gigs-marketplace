@@ -2,12 +2,17 @@ import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GigCard from "@/components/GigCard";
-import { gigs, categories } from "@/lib/data";
+import { categories } from "@/lib/data";
+import { useGigs } from "@/hooks/useGigs";
+import { Loader2 } from "lucide-react";
 
 const CategoryPage = () => {
   const { id } = useParams();
   const category = categories.find(c => c.id === id);
-  const categoryGigs = gigs.filter(g => g.category === id);
+
+  const { data: categoryGigs = [], isLoading } = useGigs(
+    id ? { category: id } : {}
+  );
 
   if (!id) {
     // All categories view
@@ -54,7 +59,9 @@ const CategoryPage = () => {
             <span className="text-4xl">{category?.icon}</span>
             <div>
               <h1 className="text-3xl font-display font-bold text-foreground">{category?.name || id}</h1>
-              <p className="text-muted-foreground">{categoryGigs.length} services available</p>
+              <p className="text-muted-foreground">
+                {isLoading ? "Loading…" : `${categoryGigs.length} service${categoryGigs.length !== 1 ? "s" : ""} available`}
+              </p>
             </div>
           </div>
           {category && (
@@ -69,7 +76,12 @@ const CategoryPage = () => {
             </div>
           )}
         </div>
-        {categoryGigs.length > 0 ? (
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 text-primary animate-spin" />
+          </div>
+        ) : categoryGigs.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {categoryGigs.map(gig => <GigCard key={gig.id} gig={gig} />)}
           </div>

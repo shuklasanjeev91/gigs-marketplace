@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { REVIEW_EDIT_WINDOW_MS } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -51,7 +52,7 @@ export default function ReviewDialog({
 
   // Check if 14-day edit window has passed
   const isLocked = existingReview
-    ? new Date(existingReview.created_at).getTime() < Date.now() - 14 * 24 * 60 * 60 * 1000
+    ? new Date(existingReview.created_at).getTime() < Date.now() - REVIEW_EDIT_WINDOW_MS
     : false;
 
   const daysRemaining = existingReview

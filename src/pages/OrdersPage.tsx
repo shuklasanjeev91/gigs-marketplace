@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import ReviewDialog from "@/components/ReviewDialog";
 import PrivateFeedbackDialog from "@/components/PrivateFeedbackDialog";
 import { Link } from "react-router-dom";
+import { FEEDBACK_DELAY_MS, MS_PER_DAY } from "@/lib/constants";
 
 type Order = {
   id: string;
@@ -138,13 +139,13 @@ const OrdersPage = () => {
       !isSelling &&
       !order.private_feedback &&
       order.completed_at &&
-      Date.now() >= new Date(order.completed_at).getTime() + 24 * 60 * 60 * 1000;
+      Date.now() >= new Date(order.completed_at).getTime() + FEEDBACK_DELAY_MS;
     const feedbackAvailableIn =
       isCompleted &&
       !isSelling &&
       !order.private_feedback &&
       order.completed_at &&
-      Date.now() < new Date(order.completed_at).getTime() + 24 * 60 * 60 * 1000;
+      Date.now() < new Date(order.completed_at).getTime() + FEEDBACK_DELAY_MS;
 
     return (
       <Card key={order.id} className="p-5 shadow-card hover:shadow-card-hover transition-shadow">
@@ -170,7 +171,7 @@ const OrdersPage = () => {
             {order.due_at && order.status !== "completed" && (
               <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
                 <Clock className="h-3 w-3" />
-                {Math.max(0, Math.ceil((new Date(order.due_at).getTime() - Date.now()) / (24 * 60 * 60 * 1000)))}d left
+                {Math.max(0, Math.ceil((new Date(order.due_at).getTime() - Date.now()) / (FEEDBACK_DELAY_MS)))}d left
               </div>
             )}
           </div>

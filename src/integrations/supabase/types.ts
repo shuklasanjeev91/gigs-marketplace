@@ -35,6 +35,48 @@ export type Database = {
         }
         Relationships: []
       }
+      gig_packages: {
+        Row: {
+          created_at: string
+          delivery_days: number
+          description: string | null
+          features: string[] | null
+          gig_id: string
+          id: string
+          name: string
+          price: number
+          revisions: number
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_days: number
+          description?: string | null
+          features?: string[] | null
+          gig_id: string
+          id?: string
+          name: string
+          price: number
+          revisions?: number
+          tier: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivery_days?: number
+          description?: string | null
+          features?: string[] | null
+          gig_id?: string
+          id?: string
+          name?: string
+          price?: number
+          revisions?: number
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gigs: {
         Row: {
           category: string
@@ -236,6 +278,39 @@ export type Database = {
           rating?: number
           seller_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      seller_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          started_at: string
+          status: string
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          tier: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

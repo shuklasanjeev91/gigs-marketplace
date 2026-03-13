@@ -8,6 +8,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { FEEDBACK_DELAY_MS } from "@/lib/constants";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface PrivateFeedbackDialogProps {
@@ -39,10 +40,10 @@ export default function PrivateFeedbackDialog({
 
   // Enforce 24-hour availability window
   const completedMs = new Date(completedAt).getTime();
-  const available = Date.now() >= completedMs + 24 * 60 * 60 * 1000;
+  const available = Date.now() >= completedMs + FEEDBACK_DELAY_MS;
   const hoursRemaining = Math.max(
     0,
-    Math.ceil((completedMs + 24 * 60 * 60 * 1000 - Date.now()) / (60 * 60 * 1000))
+    Math.ceil((completedMs + FEEDBACK_DELAY_MS - Date.now()) / (60 * 60 * 1000))
   );
 
   const handleSubmit = async () => {

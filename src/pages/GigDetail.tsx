@@ -23,6 +23,19 @@ const GigDetail = () => {
 
   const { data: gig, isLoading } = useGig(id);
 
+  // ── Real packages from gig_packages table ─────────────────────────────
+  const { data: dbPackages } = useQuery({
+    queryKey: ["gig-packages", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("gig_packages")
+        .select("*")
+        .eq("gig_id", id!);
+      return data ?? [];
+    },
+  });
+
   // ── Favorites ────────────────────────────────────────────────────────────
   const { data: isFavorited } = useQuery({
     queryKey: ["favorite", user?.id, id],
@@ -108,10 +121,37 @@ const GigDetail = () => {
     );
   }
 
+  // Build packages – prefer DB rows, fall back to computed defaults
+  const buildPkg = (tier: string, tierName: string) => {
+    const db = dbPackages?.find(p => p.tier === tier);
+    if (db) {
+      return {
+        name: db.name,
+        price: Number(db.price),
+        delivery: db.delivery_days,
+        revisions: db.revisions,
+        features: db.features ?? [],
+      };
+    }
+    const multipliers: Record<string, number> = { basic: 1, standard: 2, premium: 3.5 };
+    const extraDays: Record<string, number> = { basic: 0, standard: 2, premium: 5 };
+    return {
+      name: tierName,
+      price: Math.round(gig.price * (multipliers[tier] ?? 1)),
+      delivery: gig.delivery_days + (extraDays[tier] ?? 0),
+      revisions: tier === "basic" ? 2 : tier === "standard" ? 5 : -1,
+      features: tier === "basic"
+        ? ["Source file", "1 concept"]
+        : tier === "standard"
+        ? ["Source file", "3 concepts", "Social media kit"]
+        : ["Source file", "5 concepts", "Social media kit", "Brand guidelines", "Priority support"],
+    };
+  };
+
   const packages = [
-    { name: "Basic", price: gig.price, delivery: gig.delivery_days, revisions: 2, features: ["Source file", "1 concept"] },
-    { name: "Standard", price: Math.round(gig.price * 2), delivery: gig.delivery_days + 2, revisions: 5, features: ["Source file", "3 concepts", "Social media kit"] },
-    { name: "Premium", price: Math.round(gig.price * 3.5), delivery: gig.delivery_days + 5, revisions: -1, features: ["Source file", "5 concepts", "Social media kit", "Brand guidelines", "Priority support"] },
+    buildPkg("basic", "Basic"),
+    buildPkg("standard", "Standard"),
+    buildPkg("premium", "Premium"),
   ];
 
   const gradient = categoryGradients[gig.category] || "from-primary/20 to-accent/20";

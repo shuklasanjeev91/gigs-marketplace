@@ -17,6 +17,8 @@ import { sellerInitials } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { MS_PER_DAY } from "@/lib/constants";
 
 const CheckoutPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +37,19 @@ const CheckoutPage = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
 
   const { data: gig, isLoading } = useGig(id);
+
+  // Load real packages from gig_packages table
+  const { data: dbPackages } = useQuery({
+    queryKey: ["gig-packages", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("gig_packages")
+        .select("*")
+        .eq("gig_id", id!);
+      return data ?? [];
+    },
+  });
 
   if (isLoading) {
     return (
@@ -59,10 +74,38 @@ const CheckoutPage = () => {
     );
   }
 
+  // Build packages – prefer DB rows, fall back to computed defaults
+  const buildPkg = (tier: string) => {
+    const db = dbPackages?.find(p => p.tier === tier);
+    if (db) {
+      return {
+        name: db.name,
+        price: Number(db.price),
+        delivery: db.delivery_days,
+        revisions: db.revisions,
+        features: db.features ?? [],
+      };
+    }
+    // fallback
+    const multipliers: Record<string, number> = { basic: 1, standard: 2, premium: 3.5 };
+    const extraDays: Record<string, number> = { basic: 0, standard: 2, premium: 5 };
+    return {
+      name: tier.charAt(0).toUpperCase() + tier.slice(1),
+      price: Math.round(gig.price * (multipliers[tier] ?? 1)),
+      delivery: gig.delivery_days + (extraDays[tier] ?? 0),
+      revisions: tier === "basic" ? 2 : tier === "standard" ? 5 : -1,
+      features: tier === "basic"
+        ? ["Source file", "1 concept"]
+        : tier === "standard"
+        ? ["Source file", "3 concepts", "Social media kit"]
+        : ["Source file", "5 concepts", "Social media kit", "Brand guidelines"],
+    };
+  };
+
   const packages = {
-    basic: { name: "Basic", price: gig.price, delivery: gig.delivery_days, revisions: 2, features: ["Source file", "1 concept"] },
-    standard: { name: "Standard", price: Math.round(gig.price * 2), delivery: gig.delivery_days + 2, revisions: 5, features: ["Source file", "3 concepts", "Social media kit"] },
-    premium: { name: "Premium", price: Math.round(gig.price * 3.5), delivery: gig.delivery_days + 5, revisions: -1, features: ["Source file", "5 concepts", "Social media kit", "Brand guidelines"] },
+    basic: buildPkg("basic"),
+    standard: buildPkg("standard"),
+    premium: buildPkg("premium"),
   };
 
   const selectedPkg = packages[packageName as keyof typeof packages] || packages.standard;
@@ -87,7 +130,7 @@ const CheckoutPage = () => {
     }
     setPlacing(true);
     try {
-      const dueAt = new Date(Date.now() + selectedPkg.delivery * 24 * 60 * 60 * 1000).toISOString();
+      const dueAt = new Date(Date.now() + selectedPkg.delivery * MS_PER_DAY).toISOString();
 
       const { data: order, error } = await supabase
         .from("orders")

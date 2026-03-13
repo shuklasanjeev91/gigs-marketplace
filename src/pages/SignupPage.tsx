@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,11 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Respect ?next= redirect param (e.g. from /become-seller)
+  const nextPath = searchParams.get("next") || "/";
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +42,7 @@ const SignupPage = () => {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Account created!", description: "You can now sign in." });
-      navigate("/login");
+      navigate(`/login?next=${encodeURIComponent(nextPath)}`);
     }
     setLoading(false);
   };
@@ -117,7 +121,7 @@ const SignupPage = () => {
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           Already have an account?{" "}
-          <Link to="/login" className="text-primary font-medium hover:underline">
+          <Link to={`/login${nextPath !== "/" ? `?next=${encodeURIComponent(nextPath)}` : ""}`} className="text-primary font-medium hover:underline">
             Sign in
           </Link>
         </p>

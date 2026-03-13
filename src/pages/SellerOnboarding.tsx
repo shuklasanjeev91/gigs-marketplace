@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowRight, ArrowLeft, Loader2, Briefcase, Tag, DollarSign, Clock } from "lucide-react";
+import { CheckCircle, ArrowRight, ArrowLeft, Loader2, Briefcase, DollarSign, Clock, Plus, X } from "lucide-react";
 import { categories } from "@/lib/data";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,7 +31,25 @@ const SellerOnboarding = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [deliveryDays, setDeliveryDays] = useState("3");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+
+  const addTag = (tag: string) => {
+    const t = tag.trim().toLowerCase();
+    if (t && !tags.includes(t) && tags.length < 10) {
+      setTags(prev => [...prev, t]);
+    }
+    setTagInput("");
+  };
+
+  const removeTag = (tag: string) => setTags(prev => prev.filter(t => t !== tag));
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag(tagInput);
+    }
+  };
 
   const canNext = () => {
     if (step === 0) return title.trim().length > 0 && category.length > 0;
@@ -48,8 +66,6 @@ const SellerOnboarding = () => {
       await supabase.from("profiles").update({ is_seller: true }).eq("user_id", user.id);
     }
 
-    const tagsArray = tags.split(",").map(t => t.trim()).filter(Boolean);
-
     const { error } = await supabase.from("gigs").insert({
       seller_id: user.id,
       title: title.trim(),
@@ -57,7 +73,7 @@ const SellerOnboarding = () => {
       description: description.trim() || null,
       price: parseFloat(price),
       delivery_days: parseInt(deliveryDays) || 3,
-      tags: tagsArray,
+      tags,
     });
 
     setSubmitting(false);
@@ -75,6 +91,17 @@ const SellerOnboarding = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-10 max-w-2xl">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+            <Link to="/seller/dashboard" className="hover:text-primary">Dashboard</Link>
+            <span>/</span>
+            <span className="text-foreground">Create Gig</span>
+          </div>
+          <h1 className="text-3xl font-display font-bold text-foreground">Create your gig</h1>
+          <p className="text-muted-foreground mt-1">Fill in the details below to publish your service to buyers worldwide.</p>
+        </div>
+
         {/* Progress */}
         <div className="flex items-center justify-between mb-10">
           {steps.map((s, i) => (
@@ -140,13 +167,42 @@ const SellerOnboarding = () => {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">Tags</label>
-                    <Input
-                      placeholder="e.g. logo, branding, minimalist (comma separated)"
-                      className="h-12"
-                      value={tags}
-                      onChange={e => setTags(e.target.value)}
-                    />
+                    <label className="text-sm font-medium text-foreground mb-2 block">
+                      Tags <span className="text-muted-foreground text-xs font-normal">(up to 10, press Enter or comma to add)</span>
+                    </label>
+                    {tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {tags.map(tag => (
+                          <Badge key={tag} variant="secondary" className="gap-1 pl-2.5 pr-1.5 py-0.5 text-sm font-normal">
+                            {tag}
+                            <button onClick={() => removeTag(tag)} className="text-muted-foreground hover:text-foreground ml-0.5">
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g. logo, branding, react"
+                        className="h-11"
+                        value={tagInput}
+                        onChange={e => setTagInput(e.target.value)}
+                        onKeyDown={handleTagKeyDown}
+                        disabled={tags.length >= 10}
+                        maxLength={30}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-11 px-3"
+                        onClick={() => addTag(tagInput)}
+                        disabled={!tagInput.trim() || tags.length >= 10}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -224,11 +280,11 @@ const SellerOnboarding = () => {
                       <div className="text-sm text-foreground">{description}</div>
                     </div>
                   )}
-                  {tags && (
+                  {tags.length > 0 && (
                     <div className="p-4 rounded-xl bg-secondary/50">
                       <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Tags</div>
                       <div className="flex flex-wrap gap-1.5 mt-1">
-                        {tags.split(",").map(t => t.trim()).filter(Boolean).map(tag => (
+                        {tags.map(tag => (
                           <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
                         ))}
                       </div>

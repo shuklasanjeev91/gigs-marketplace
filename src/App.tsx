@@ -14,6 +14,7 @@ import FavoritesPage from "./pages/FavoritesPage.tsx";
 import BecomeASeller from "./pages/BecomeASeller.tsx";
 import SellerOnboarding from "./pages/SellerOnboarding.tsx";
 import SellerDashboard from "./pages/SellerDashboard.tsx";
+import SellerSetupPage from "./pages/SellerSetupPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import MessagesPage from "./pages/MessagesPage.tsx";
 import CheckoutPage from "./pages/CheckoutPage.tsx";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/dashboard" element={<Navigate to="/seller/dashboard" replace />} />
             <Route path="/seller/dashboard" element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>} />
+            <Route path="/seller/setup" element={<ProtectedRoute><SellerSetupPage /></ProtectedRoute>} />
             <Route path="/seller/onboarding" element={<ProtectedRoute><SellerOnboarding /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
             <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />

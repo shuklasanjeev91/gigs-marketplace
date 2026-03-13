@@ -83,9 +83,15 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Link to="/become-seller">
-                <Button variant="ghost" size="sm" className="text-sm font-medium">Become a Seller</Button>
-              </Link>
+              {user ? (
+                <Link to="/seller/dashboard">
+                  <Button variant="ghost" size="sm" className="text-sm font-medium text-primary">Switch to Selling</Button>
+                </Link>
+              ) : (
+                <Link to="/become-seller">
+                  <Button variant="ghost" size="sm" className="text-sm font-medium">Become a Seller</Button>
+                </Link>
+              )}
             </nav>
 
             {user ? (
@@ -194,7 +200,11 @@ const Navbar = () => {
           </form>
           <nav className="flex flex-col gap-2">
             <Link to="/categories" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
-            <Link to="/become-seller" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Become a Seller</Link>
+            {user ? (
+              <Link to="/seller/dashboard" className="py-2 text-sm font-medium text-primary" onClick={() => setMobileMenuOpen(false)}>Switch to Selling</Link>
+            ) : (
+              <Link to="/become-seller" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Become a Seller</Link>
+            )}
             {user ? (
               <>
                 <Link to="/orders" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Orders</Link>

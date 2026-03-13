@@ -6,13 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Clock, Award, MessageCircle } from "lucide-react";
 import GigCard from "@/components/GigCard";
-import { gigs } from "@/lib/data";
+import { useGigs } from "@/hooks/useGigs";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 
 const Profile = () => {
   const { user, profile } = useAuth();
-  const sellerGigs = gigs.slice(0, 4);
+  const { data: sellerGigs = [] } = useGigs(
+    user ? { sellerId: user.id, limit: 4 } : {}
+  );
 
   const initials = useMemo(() => {
     const name = profile?.display_name || user?.email || "";

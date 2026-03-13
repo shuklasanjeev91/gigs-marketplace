@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { categories, gigs } from "@/lib/data";
+import { categories } from "@/lib/data";
+import { useGigs } from "@/hooks/useGigs";
 import GigCard from "./GigCard";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const PopularServices = () => {
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
 
-  const activeGigs = gigs.filter(g => g.category === activeCategory).slice(0, 4);
-  const fallbackGigs = gigs.slice(0, 4);
-  const displayGigs = activeGigs.length > 0 ? activeGigs : fallbackGigs;
+  const { data: displayGigs = [], isLoading } = useGigs({ category: activeCategory, limit: 4 });
 
   return (
     <section className="py-16 md:py-24 bg-background">
@@ -44,20 +43,27 @@ const PopularServices = () => {
         </div>
 
         {/* Gigs grid */}
-        <motion.div
-          key={activeCategory}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
-        >
-          {displayGigs.map(gig => (
-            <GigCard key={gig.id} gig={gig} />
-          ))}
-          {displayGigs.length < 4 && gigs.slice(0, 4 - displayGigs.length).map(gig => (
-            <GigCard key={`fill-${gig.id}`} gig={gig} />
-          ))}
-        </motion.div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="h-8 w-8 text-primary animate-spin" />
+          </div>
+        ) : displayGigs.length > 0 ? (
+          <motion.div
+            key={activeCategory}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+          >
+            {displayGigs.map(gig => (
+              <GigCard key={gig.id} gig={gig} />
+            ))}
+          </motion.div>
+        ) : (
+          <div className="text-center py-8 border border-dashed border-border rounded-xl">
+            <p className="text-muted-foreground text-sm">No services in this category yet.</p>
+          </div>
+        )}
 
         <div className="text-center mt-8">
           <Link to={`/categories/${activeCategory}`}>
@@ -72,3 +78,4 @@ const PopularServices = () => {
 };
 
 export default PopularServices;
+

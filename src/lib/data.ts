@@ -11,140 +11,28 @@ export const categories = [
   { id: "consulting", name: "Consulting", icon: "🧠", count: 560, subcategories: ["Strategy", "Product Management", "UX Research", "Data Analysis", "Operations"] },
 ];
 
-export const gigs = [
-  {
-    id: "1",
-    title: "I will design a modern minimalist logo for your brand",
-    seller: { name: "DesignMaster", avatar: "DM", level: "Top Rated", rating: 4.9, reviews: 1247, country: "🇺🇸" },
-    price: 25,
-    image: "/placeholder.svg",
-    category: "graphics-design",
-    tags: ["logo", "branding", "minimalist"],
-    deliveryDays: 2,
-    isPro: true,
-  },
-  {
-    id: "2",
-    title: "I will develop a responsive React website with modern UI",
-    seller: { name: "CodeWizard", avatar: "CW", level: "Level 2", rating: 4.8, reviews: 832, country: "🇬🇧" },
-    price: 150,
-    image: "/placeholder.svg",
-    category: "programming-tech",
-    tags: ["react", "web development", "responsive"],
-    deliveryDays: 7,
-    isPro: false,
-  },
-  {
-    id: "3",
-    title: "I will write SEO optimized blog posts and articles",
-    seller: { name: "WordSmith", avatar: "WS", level: "Top Rated", rating: 5.0, reviews: 2100, country: "🇨🇦" },
-    price: 35,
-    image: "/placeholder.svg",
-    category: "writing-translation",
-    tags: ["SEO", "blog", "content writing"],
-    deliveryDays: 3,
-    isPro: true,
-  },
-  {
-    id: "4",
-    title: "I will create stunning motion graphics and animations",
-    seller: { name: "MotionPro", avatar: "MP", level: "Level 2", rating: 4.7, reviews: 456, country: "🇦🇺" },
-    price: 80,
-    image: "/placeholder.svg",
-    category: "video-animation",
-    tags: ["motion graphics", "animation", "after effects"],
-    deliveryDays: 5,
-    isPro: false,
-  },
-  {
-    id: "5",
-    title: "I will do professional voice over in 24 hours",
-    seller: { name: "VoiceArtist", avatar: "VA", level: "Top Rated", rating: 4.9, reviews: 3200, country: "🇺🇸" },
-    price: 20,
-    image: "/placeholder.svg",
-    category: "music-audio",
-    tags: ["voice over", "narration", "audiobook"],
-    deliveryDays: 1,
-    isPro: true,
-  },
-  {
-    id: "6",
-    title: "I will build a custom AI chatbot for your business",
-    seller: { name: "AIBuilder", avatar: "AB", level: "Level 2", rating: 4.8, reviews: 189, country: "🇩🇪" },
-    price: 200,
-    image: "/placeholder.svg",
-    category: "ai-services",
-    tags: ["AI", "chatbot", "automation"],
-    deliveryDays: 10,
-    isPro: false,
-  },
-  {
-    id: "7",
-    title: "I will manage your social media accounts professionally",
-    seller: { name: "SocialGuru", avatar: "SG", level: "Level 1", rating: 4.6, reviews: 320, country: "🇮🇳" },
-    price: 50,
-    image: "/placeholder.svg",
-    category: "digital-marketing",
-    tags: ["social media", "marketing", "growth"],
-    deliveryDays: 30,
-    isPro: false,
-  },
-  {
-    id: "8",
-    title: "I will create a complete brand identity package",
-    seller: { name: "BrandCraft", avatar: "BC", level: "Top Rated", rating: 4.9, reviews: 890, country: "🇫🇷" },
-    price: 120,
-    image: "/placeholder.svg",
-    category: "graphics-design",
-    tags: ["branding", "identity", "design"],
-    deliveryDays: 7,
-    isPro: true,
-  },
-  {
-    id: "9",
-    title: "I will develop a full stack mobile app with React Native",
-    seller: { name: "AppMaker", avatar: "AM", level: "Level 2", rating: 4.7, reviews: 567, country: "🇧🇷" },
-    price: 300,
-    image: "/placeholder.svg",
-    category: "programming-tech",
-    tags: ["mobile app", "react native", "full stack"],
-    deliveryDays: 14,
-    isPro: false,
-  },
-  {
-    id: "10",
-    title: "I will translate your content to 10+ languages accurately",
-    seller: { name: "LinguaPro", avatar: "LP", level: "Top Rated", rating: 4.9, reviews: 1500, country: "🇪🇸" },
-    price: 15,
-    image: "/placeholder.svg",
-    category: "writing-translation",
-    tags: ["translation", "multilingual", "localization"],
-    deliveryDays: 2,
-    isPro: true,
-  },
-  {
-    id: "11",
-    title: "I will create a professional explainer video for your startup",
-    seller: { name: "VideoWiz", avatar: "VW", level: "Level 2", rating: 4.8, reviews: 340, country: "🇳🇱" },
-    price: 100,
-    image: "/placeholder.svg",
-    category: "video-animation",
-    tags: ["explainer video", "startup", "animation"],
-    deliveryDays: 5,
-    isPro: false,
-  },
-  {
-    id: "12",
-    title: "I will be your virtual assistant for data entry tasks",
-    seller: { name: "TaskHelper", avatar: "TH", level: "Level 1", rating: 4.5, reviews: 210, country: "🇵🇭" },
-    price: 10,
-    image: "/placeholder.svg",
-    category: "business",
-    tags: ["virtual assistant", "data entry", "admin"],
-    deliveryDays: 1,
-    isPro: false,
-  },
-];
-
-export type Gig = typeof gigs[number];
 export type Category = typeof categories[number];
+
+/** Shape of a gig enriched with seller profile data and review stats */
+export interface GigCardData {
+  id: string;
+  title: string;
+  category: string;
+  price: number;
+  delivery_days: number;
+  tags: string[] | null;
+  image_url: string | null;
+  seller_id: string;
+  seller?: {
+    display_name: string | null;
+    avatar_url: string | null;
+    country: string | null;
+    seller_level: string | null;
+  } | null;
+  avg_rating?: number | null;
+  review_count?: number | null;
+}
+
+/** Alias kept for any remaining imports */
+export type Gig = GigCardData;
+

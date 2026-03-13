@@ -15,6 +15,8 @@ import BecomeASeller from "./pages/BecomeASeller.tsx";
 import SellerOnboarding from "./pages/SellerOnboarding.tsx";
 import SellerDashboard from "./pages/SellerDashboard.tsx";
 import SellerSetupPage from "./pages/SellerSetupPage.tsx";
+import SellerGigEditPage from "./pages/SellerGigEditPage.tsx";
+import SellerSubscriptionPage from "./pages/SellerSubscriptionPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import MessagesPage from "./pages/MessagesPage.tsx";
 import CheckoutPage from "./pages/CheckoutPage.tsx";
@@ -45,6 +47,8 @@ const App = () => (
             <Route path="/seller/dashboard" element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>} />
             <Route path="/seller/setup" element={<ProtectedRoute><SellerSetupPage /></ProtectedRoute>} />
             <Route path="/seller/onboarding" element={<ProtectedRoute><SellerOnboarding /></ProtectedRoute>} />
+            <Route path="/seller/gig/:id/edit" element={<ProtectedRoute><SellerGigEditPage /></ProtectedRoute>} />
+            <Route path="/seller/subscription" element={<ProtectedRoute><SellerSubscriptionPage /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
             <Route path="/favorites" element={<ProtectedRoute><FavoritesPage /></ProtectedRoute>} />
             <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />

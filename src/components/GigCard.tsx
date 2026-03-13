@@ -85,26 +85,32 @@ const GigCard = ({ gig }: { gig: GigCardData }) => {
         <div className="p-4">
           {/* Seller info */}
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold overflow-hidden shrink-0">
-              {gig.seller?.avatar_url ? (
-                <img src={gig.seller.avatar_url} alt={initials} className="h-full w-full object-cover" />
-              ) : (
-                initials
-              )}
-            </div>
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-sm font-medium text-foreground truncate">
-                {gig.seller?.display_name || "Freelancer"}
-              </span>
-              {gig.seller?.country && (
-                <span className="text-xs text-muted-foreground shrink-0">{gig.seller.country}</span>
-              )}
-              {sellerLevel === "Top Rated" && (
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary shrink-0">
-                  Top Rated
-                </Badge>
-              )}
-            </div>
+            <Link
+              to={gig.seller?.display_name ? `/user/${encodeURIComponent(gig.seller.display_name)}` : "#"}
+              className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold overflow-hidden shrink-0">
+                {gig.seller?.avatar_url ? (
+                  <img src={gig.seller.avatar_url} alt={initials} className="h-full w-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-sm font-medium text-foreground truncate">
+                  {gig.seller?.display_name || "Freelancer"}
+                </span>
+                {gig.seller?.country && (
+                  <span className="text-xs text-muted-foreground shrink-0">{gig.seller.country}</span>
+                )}
+                {sellerLevel === "Top Rated" && (
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary shrink-0">
+                    Top Rated
+                  </Badge>
+                )}
+              </div>
+            </Link>
           </div>
 
           {/* Title */}

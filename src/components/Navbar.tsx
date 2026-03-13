@@ -83,9 +83,15 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Link to="/become-seller">
-                <Button variant="ghost" size="sm" className="text-sm font-medium">Become a Seller</Button>
-              </Link>
+              {user ? (
+                <Link to="/seller/dashboard">
+                  <Button variant="ghost" size="sm" className="text-sm font-medium text-primary">Switch to Selling</Button>
+                </Link>
+              ) : (
+                <Link to="/become-seller">
+                  <Button variant="ghost" size="sm" className="text-sm font-medium">Become a Seller</Button>
+                </Link>
+              )}
             </nav>
 
             {user ? (
@@ -94,9 +100,11 @@ const Navbar = () => {
                   <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
                     <Bell className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
-                    <MessageCircle className="h-4 w-4" />
-                  </Button>
+                  <Link to="/messages">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  </Link>
                   <Link to="/favorites">
                     <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
                       <Heart className="h-4 w-4" />
@@ -126,6 +134,7 @@ const Navbar = () => {
                     <DropdownMenuItem asChild><Link to="/profile" className="cursor-pointer">Profile</Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link to="/seller/dashboard" className="cursor-pointer">Dashboard</Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link to="/orders" className="cursor-pointer">Orders</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link to="/messages" className="cursor-pointer">Messages</Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link to="/favorites" className="cursor-pointer">Favorites</Link></DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild><Link to="/settings" className="cursor-pointer">Settings</Link></DropdownMenuItem>
@@ -191,7 +200,11 @@ const Navbar = () => {
           </form>
           <nav className="flex flex-col gap-2">
             <Link to="/categories" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
-            <Link to="/become-seller" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Become a Seller</Link>
+            {user ? (
+              <Link to="/seller/dashboard" className="py-2 text-sm font-medium text-primary" onClick={() => setMobileMenuOpen(false)}>Switch to Selling</Link>
+            ) : (
+              <Link to="/become-seller" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Become a Seller</Link>
+            )}
             {user ? (
               <>
                 <Link to="/orders" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Orders</Link>

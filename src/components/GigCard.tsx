@@ -1,18 +1,25 @@
 import { Link } from "react-router-dom";
 import { Star, Heart, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { categoryGradients, categoryEmojis } from "@/lib/categories";
 import type { Gig } from "@/lib/data";
 
 const GigCard = ({ gig }: { gig: Gig }) => {
+  const gradient = categoryGradients[gig.category] || "from-primary/20 to-accent/20";
+  const emoji = categoryEmojis[gig.category] || "💼";
+
   return (
     <Link to={`/gig/${gig.id}`} className="group block">
       <div className="bg-card rounded-lg border border-border overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1">
         {/* Image */}
         <div className="relative aspect-[16/10] bg-muted overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-            <span className="text-4xl opacity-30">{gig.category === "graphics-design" ? "🎨" : gig.category === "programming-tech" ? "💻" : gig.category === "writing-translation" ? "✍️" : gig.category === "video-animation" ? "🎬" : gig.category === "music-audio" ? "🎵" : gig.category === "ai-services" ? "🤖" : "💼"}</span>
+          <div className={`absolute inset-0 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+            <span className="text-5xl opacity-40">{emoji}</span>
           </div>
-          <button className="absolute top-2 right-2 p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-destructive transition-colors">
+          <button
+            className="absolute top-2 right-2 p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-destructive transition-colors"
+            onClick={(e) => e.preventDefault()}
+          >
             <Heart className="h-4 w-4" />
           </button>
           {gig.isPro && (

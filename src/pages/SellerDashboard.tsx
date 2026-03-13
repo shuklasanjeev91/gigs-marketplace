@@ -167,9 +167,9 @@ function DashboardContent() {
           <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h1 className="text-3xl font-display font-bold text-foreground mb-2">You're not a seller yet</h1>
           <p className="text-muted-foreground mb-6">Create your first gig to start earning</p>
-          <Link to="/become-seller">
+          <Link to="/seller/setup">
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Plus className="h-4 w-4 mr-2" /> Become a Seller
+              <Plus className="h-4 w-4 mr-2" /> Set Up Seller Account
             </Button>
           </Link>
         </div>

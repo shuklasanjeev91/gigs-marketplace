@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,11 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Respect ?next= redirect (e.g. from checkout, seller setup)
+  const nextPath = searchParams.get("next") || "/";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +33,7 @@ const LoginPage = () => {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Welcome back!" });
-      navigate("/");
+      navigate(nextPath);
     }
     setLoading(false);
   };
@@ -97,7 +101,7 @@ const LoginPage = () => {
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-primary font-medium hover:underline">
+          <Link to={`/signup${nextPath !== "/" ? `?next=${encodeURIComponent(nextPath)}` : ""}`} className="text-primary font-medium hover:underline">
             Sign up
           </Link>
         </p>

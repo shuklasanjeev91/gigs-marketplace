@@ -91,17 +91,21 @@ const fadeUp = {
 };
 
 const BecomeASeller = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState(0);
 
   const handleGetStarted = () => {
-    if (user) {
-      navigate("/seller/onboarding");
+    if (!user) {
+      navigate("/signup?next=/seller/setup");
+    } else if (profile?.is_seller) {
+      navigate("/seller/dashboard");
     } else {
-      navigate("/signup");
+      navigate("/seller/setup");
     }
   };
+
+  const ctaLabel = profile?.is_seller ? "Go to Dashboard" : "Get Started";
 
   return (
     <div className="min-h-screen bg-background">
@@ -140,7 +144,7 @@ const BecomeASeller = () => {
                 onClick={handleGetStarted}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-10 h-14 text-base rounded-xl"
               >
-                Get Started <ArrowRight className="ml-2 h-5 w-5" />
+                {ctaLabel} <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <a href="#how-it-works">
                 <Button
@@ -231,7 +235,7 @@ const BecomeASeller = () => {
               onClick={handleGetStarted}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-10 h-12 rounded-xl"
             >
-              Get Started <ArrowRight className="ml-2 h-4 w-4" />
+              {ctaLabel} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </motion.div>
         </div>
@@ -412,7 +416,7 @@ const BecomeASeller = () => {
               onClick={handleGetStarted}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-12 h-14 text-base rounded-xl"
             >
-              Get Started <ArrowRight className="ml-2 h-5 w-5" />
+              {ctaLabel} <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </motion.div>
         </div>

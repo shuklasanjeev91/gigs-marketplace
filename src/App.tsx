@@ -26,6 +26,10 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import BusinessDashboard from "./pages/BusinessDashboard.tsx";
+import TalentLineupPage from "./pages/TalentLineupPage.tsx";
+import ProjectManagementPage from "./pages/ProjectManagementPage.tsx";
+import AdminDashboard from "./pages/AdminDashboard.tsx";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +59,10 @@ const App = () => (
             <Route path="/checkout/:id" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
             <Route path="/become-seller" element={<BecomeASeller />} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/business/dashboard" element={<ProtectedRoute><BusinessDashboard /></ProtectedRoute>} />
+            <Route path="/business/talent-lineup" element={<ProtectedRoute><TalentLineupPage /></ProtectedRoute>} />
+            <Route path="/business/projects" element={<ProtectedRoute><ProjectManagementPage /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />

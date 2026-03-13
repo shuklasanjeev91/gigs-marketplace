@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Menu, X, Bell, MessageCircle, Heart, ChevronDown, User, LogIn } from "lucide-react";
+import { Search, Menu, X, Bell, MessageCircle, Heart, ChevronDown, Building2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -137,6 +137,17 @@ const Navbar = () => {
                     <DropdownMenuItem asChild><Link to="/favorites" className="cursor-pointer">Favorites</Link></DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild><Link to="/settings" className="cursor-pointer">Settings</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/business/dashboard" className="cursor-pointer flex items-center gap-2">
+                        <Building2 className="h-3.5 w-3.5" /> Business Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer flex items-center gap-2">
+                        <ShieldCheck className="h-3.5 w-3.5" /> Platform Admin
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleSignOut}>
                       Sign Out
                     </DropdownMenuItem>
@@ -208,6 +219,8 @@ const Navbar = () => {
               <>
                 <Link to="/orders" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Orders</Link>
                 <Link to="/dashboard" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+                <Link to="/business/dashboard" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Business Dashboard</Link>
+                <Link to="/admin" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Platform Admin</Link>
                 <button className="py-2 text-sm font-medium text-destructive text-left" onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}>Sign Out</button>
               </>
             ) : (

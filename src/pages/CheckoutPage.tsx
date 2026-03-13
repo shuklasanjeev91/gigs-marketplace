@@ -12,6 +12,7 @@ import {
   ChevronRight, ArrowLeft, Lock, Info
 } from "lucide-react";
 import { gigs } from "@/lib/data";
+import { categoryEmojis } from "@/lib/categories";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,8 +52,8 @@ const CheckoutPage = () => {
   };
 
   const selectedPkg = packages[packageName as keyof typeof packages] || packages.standard;
-  const serviceFee = Math.round(selectedPkg.price * 0.05 * 100) / 100;
-  const total = selectedPkg.price + serviceFee;
+  const serviceFee = parseFloat((Math.round(selectedPkg.price * 0.05 * 100) / 100).toFixed(2));
+  const total = parseFloat((selectedPkg.price + serviceFee).toFixed(2));
 
   const formatCard = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 16);
@@ -174,7 +175,7 @@ const CheckoutPage = () => {
                   <div className="flex items-start gap-4">
                     <div className="w-24 h-16 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0">
                       <span className="text-2xl opacity-50">
-                        {gig.category === "graphics-design" ? "🎨" : gig.category === "programming-tech" ? "💻" : gig.category === "writing-translation" ? "✍️" : gig.category === "video-animation" ? "🎬" : gig.category === "music-audio" ? "🎵" : "💼"}
+                        {categoryEmojis[gig.category] || "💼"}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">

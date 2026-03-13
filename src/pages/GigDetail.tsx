@@ -2,38 +2,13 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { gigs } from "@/lib/data";
+import { categoryGradients, categoryEmojis } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Star, Clock, RefreshCw, Check, Heart, Share2, ArrowLeft, MessageCircle, MapPin, Award, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
-const categoryGradients: Record<string, string> = {
-  "graphics-design": "from-purple-400/30 to-pink-400/30",
-  "digital-marketing": "from-blue-400/30 to-cyan-400/30",
-  "writing-translation": "from-amber-400/30 to-yellow-300/30",
-  "video-animation": "from-red-400/30 to-orange-400/30",
-  "music-audio": "from-violet-400/30 to-purple-400/30",
-  "programming-tech": "from-green-400/30 to-teal-400/30",
-  "business": "from-blue-400/30 to-indigo-400/30",
-  "lifestyle": "from-pink-400/30 to-rose-300/30",
-  "ai-services": "from-cyan-400/30 to-blue-400/30",
-  "consulting": "from-slate-400/30 to-gray-300/30",
-};
-
-const categoryEmojis: Record<string, string> = {
-  "graphics-design": "🎨",
-  "digital-marketing": "📈",
-  "writing-translation": "✍️",
-  "video-animation": "🎬",
-  "music-audio": "🎵",
-  "programming-tech": "💻",
-  "business": "💼",
-  "lifestyle": "🌟",
-  "ai-services": "🤖",
-  "consulting": "🧠",
-};
 
 const GigDetail = () => {
   const { id } = useParams();
@@ -62,6 +37,15 @@ const GigDetail = () => {
 
   const gradient = categoryGradients[gig.category] || "from-primary/20 to-accent/20";
   const emoji = categoryEmojis[gig.category] || "💼";
+
+  const handleContinueToCheckout = (pkgName: string) => {
+    if (!user) { navigate("/login"); return; }
+    navigate(`/checkout/${gig.id}?package=${pkgName.toLowerCase()}`);
+  };
+
+  const handleContactSeller = () => {
+    navigate(user ? "/messages" : "/login");
+  };
 
   const faqs = [
     { q: "How many revisions do I get?", a: "It depends on the package you choose. Basic includes 2 revisions, Standard includes 5, and Premium offers unlimited revisions until you're fully satisfied." },
@@ -181,7 +165,7 @@ const GigDetail = () => {
                   </div>
                 </div>
               </div>
-              <Button variant="outline" className="mt-4 h-10 font-medium" onClick={() => navigate(user ? "/messages" : "/login")}>
+              <Button variant="outline" className="mt-4 h-10 font-medium" onClick={handleContactSeller}>
                 <MessageCircle className="h-4 w-4 mr-2" /> Contact Seller
               </Button>
             </div>
@@ -293,10 +277,7 @@ const GigDetail = () => {
                           </li>
                         ))}
                       </ul>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11" onClick={() => {
-                          if (!user) { navigate("/login"); return; }
-                          navigate(`/checkout/${gig.id}?package=${pkg.name.toLowerCase()}`);
-                        }}>
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11" onClick={() => handleContinueToCheckout(pkg.name)}>
                         Continue (${pkg.price})
                       </Button>
                     </TabsContent>
@@ -304,7 +285,7 @@ const GigDetail = () => {
                 </Tabs>
               </div>
 
-              <Button variant="outline" className="w-full h-11 font-medium" onClick={() => navigate(user ? "/messages" : "/login")}>
+              <Button variant="outline" className="w-full h-11 font-medium" onClick={handleContactSeller}>
                 <MessageCircle className="h-4 w-4 mr-2" /> Contact Seller
               </Button>
 

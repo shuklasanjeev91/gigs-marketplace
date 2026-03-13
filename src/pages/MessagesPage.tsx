@@ -135,7 +135,9 @@ const MessagesPage = () => {
   };
 
   const currentMessages = selectedConvo ? messages[selectedConvo.id] || [] : [];
-  const myInitials = profile?.display_name?.slice(0, 2).toUpperCase() || user?.email?.slice(0, 2).toUpperCase() || "ME";
+  const myInitials = profile?.display_name?.slice(0, 2).toUpperCase()
+    || user?.email?.split("@")[0]?.slice(0, 2).toUpperCase()
+    || "ME";
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

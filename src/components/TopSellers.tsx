@@ -128,7 +128,7 @@ const TopSellers = () => {
                     <span className="text-xs text-muted-foreground">From </span>
                     <span className="font-bold font-display text-foreground">${seller.startingAt}</span>
                   </div>
-                  <Link to={`/search?q=${encodeURIComponent(seller.name)}`}>
+                  <Link to="/messages">
                     <Button size="sm" variant="outline" className="h-8 text-xs font-medium gap-1">
                       <MessageCircle className="h-3 w-3" /> Contact
                     </Button>

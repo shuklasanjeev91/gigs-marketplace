@@ -160,7 +160,9 @@ const OrdersPage = () => {
               <Badge variant="outline" className="text-xs capitalize">{order.package}</Badge>
             </div>
             <h3 className="text-sm font-semibold text-foreground truncate">
-              {order.gig?.title || "Gig deleted"}
+              <Link to={`/orders/${order.id}`} className="hover:text-primary transition-colors">
+                {order.gig?.title || "Gig deleted"}
+              </Link>
             </h3>
             <p className="text-xs text-muted-foreground">
               {isSelling ? "From buyer" : `by ${order.seller?.display_name || "Seller"}`}

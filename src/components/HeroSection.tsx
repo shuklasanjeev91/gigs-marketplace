@@ -5,17 +5,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { usePlatformStats } from "@/hooks/usePlatformStats";
 
 const popularSearches = ["Logo Design", "WordPress", "Voice Over", "AI Services", "Video Editing"];
 
 const HeroSection = () => {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const { data: stats } = usePlatformStats();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) navigate(`/search?q=${encodeURIComponent(query.trim())}`);
   };
+
+  const formatCount = (n: number) => {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M+`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K+`;
+    return n > 0 ? `${n}+` : "—";
+  };
+
+  const statItems = [
+    {
+      value: stats ? formatCount(stats.sellerCount) : "—",
+      label: "Active Freelancers",
+    },
+    {
+      value: stats ? formatCount(stats.completedOrders) : "—",
+      label: "Projects Completed",
+    },
+    {
+      value: stats?.avgRating != null ? `${stats.avgRating}/5` : "—",
+      label: "Average Rating",
+    },
+    {
+      value: stats ? (stats.countryCount > 0 ? `${stats.countryCount}` : "—") : "—",
+      label: "Countries",
+    },
+  ];
 
   return (
     <section className="relative overflow-hidden bg-hero-gradient py-20 md:py-32">
@@ -82,12 +109,7 @@ const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto"
         >
-          {[
-            { value: "890K+", label: "Active Freelancers" },
-            { value: "12M+", label: "Projects Completed" },
-            { value: "4.8/5", label: "Average Rating" },
-            { value: "195", label: "Countries" },
-          ].map(stat => (
+          {statItems.map(stat => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl md:text-3xl font-display font-bold text-primary-foreground">{stat.value}</div>
               <div className="text-xs md:text-sm text-primary-foreground/50 mt-1">{stat.label}</div>

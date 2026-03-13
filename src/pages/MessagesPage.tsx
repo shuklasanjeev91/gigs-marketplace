@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Send, Paperclip, Smile, MoreVertical, ArrowLeft, Video, Phone } from "lucide-react";
+import { Search, Send, Paperclip, Smile, MoreVertical, ArrowLeft, Video, Phone, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -29,81 +29,13 @@ type Conversation = {
   messages: Message[];
 };
 
-const mockConversations: Conversation[] = [
-  {
-    id: "1",
-    name: "DesignMaster",
-    avatar: "DM",
-    lastMessage: "I've sent the initial concepts for your review.",
-    time: "2m ago",
-    unread: 2,
-    online: true,
-    service: "Logo Design",
-    messages: [
-      { id: "1", text: "Hi! I'm interested in your logo design service.", fromMe: true, time: "10:00 AM", read: true },
-      { id: "2", text: "Hello! Great to hear from you. What kind of logo are you looking for?", fromMe: false, time: "10:05 AM", read: true },
-      { id: "3", text: "I need a modern minimalist logo for my tech startup.", fromMe: true, time: "10:07 AM", read: true },
-      { id: "4", text: "That sounds great! Could you share more about your brand colors and any inspiration?", fromMe: false, time: "10:10 AM", read: true },
-      { id: "5", text: "Sure! We prefer blue and white tones, and companies like Stripe or Linear inspire us.", fromMe: true, time: "10:12 AM", read: true },
-      { id: "6", text: "Perfect! I've sent the initial concepts for your review.", fromMe: false, time: "10:15 AM", read: false },
-    ],
-  },
-  {
-    id: "2",
-    name: "CodeWizard",
-    avatar: "CW",
-    lastMessage: "The website will be ready by Friday.",
-    time: "1h ago",
-    unread: 0,
-    online: false,
-    service: "React Website",
-    messages: [
-      { id: "1", text: "Hey, when can you start on the project?", fromMe: true, time: "9:00 AM", read: true },
-      { id: "2", text: "I can start today! Let me review the requirements first.", fromMe: false, time: "9:10 AM", read: true },
-      { id: "3", text: "The website will be ready by Friday.", fromMe: false, time: "9:30 AM", read: true },
-    ],
-  },
-  {
-    id: "3",
-    name: "WordSmith",
-    avatar: "WS",
-    lastMessage: "Please check the articles I delivered.",
-    time: "3h ago",
-    unread: 1,
-    online: true,
-    service: "SEO Blog Posts",
-    messages: [
-      { id: "1", text: "I need 5 blog posts on AI technology.", fromMe: true, time: "8:00 AM", read: true },
-      { id: "2", text: "Sure! I'll have them done in 3 days.", fromMe: false, time: "8:15 AM", read: true },
-      { id: "3", text: "Please check the articles I delivered.", fromMe: false, time: "11:00 AM", read: false },
-    ],
-  },
-  {
-    id: "4",
-    name: "VoiceArtist",
-    avatar: "VA",
-    lastMessage: "Here is the voice over recording.",
-    time: "Yesterday",
-    unread: 0,
-    online: false,
-    service: "Voice Over",
-    messages: [
-      { id: "1", text: "I need a professional voice over for a 2-minute explainer video.", fromMe: true, time: "Yesterday 2:00 PM", read: true },
-      { id: "2", text: "I'd be happy to help! Please share the script.", fromMe: false, time: "Yesterday 2:30 PM", read: true },
-      { id: "3", text: "Here is the voice over recording.", fromMe: false, time: "Yesterday 5:00 PM", read: true },
-    ],
-  },
-];
-
 const MessagesPage = () => {
   const { profile, user } = useAuth();
-  const [conversations] = useState<Conversation[]>(mockConversations);
-  const [selectedConvo, setSelectedConvo] = useState<Conversation | null>(mockConversations[0]);
+  const [conversations] = useState<Conversation[]>([]);
+  const [selectedConvo, setSelectedConvo] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [messages, setMessages] = useState<Record<string, Message[]>>(
-    Object.fromEntries(mockConversations.map(c => [c.id, c.messages]))
-  );
+  const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [mobileShowChat, setMobileShowChat] = useState(false);
 
   const filteredConversations = conversations.filter(c =>
@@ -166,7 +98,22 @@ const MessagesPage = () => {
             {/* Conversations list */}
             <ScrollArea className="flex-1">
               {filteredConversations.length === 0 ? (
-                <div className="p-8 text-center text-sm text-muted-foreground">No conversations found</div>
+                <div className="p-8 text-center">
+                  <MessageCircle className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm font-medium text-foreground mb-1">No conversations yet</p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    {searchQuery
+                      ? "No conversations match your search."
+                      : "Start by hiring a freelancer or contacting a seller."}
+                  </p>
+                  {!searchQuery && (
+                    <Link to="/search">
+                      <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs">
+                        Browse Freelancers
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               ) : (
                 filteredConversations.map(convo => (
                   <button

@@ -3,6 +3,8 @@ import HeroSection from "@/components/HeroSection";
 import TrustBanner from "@/components/TrustBanner";
 import CategoryGrid from "@/components/CategoryGrid";
 import FeaturedGigs from "@/components/FeaturedGigs";
+import PopularServices from "@/components/PopularServices";
+import TopSellers from "@/components/TopSellers";
 import HowItWorks from "@/components/HowItWorks";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -15,8 +17,10 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <TrustBanner />
+      <PopularServices />
       <CategoryGrid />
       <FeaturedGigs title="Trending Services" />
+      <TopSellers />
       <HowItWorks />
 
       {/* CTA Section */}

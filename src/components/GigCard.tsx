@@ -3,16 +3,48 @@ import { Star, Heart, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Gig } from "@/lib/data";
 
+const categoryGradients: Record<string, string> = {
+  "graphics-design": "from-purple-400/30 to-pink-400/30",
+  "digital-marketing": "from-blue-400/30 to-cyan-400/30",
+  "writing-translation": "from-amber-400/30 to-yellow-300/30",
+  "video-animation": "from-red-400/30 to-orange-400/30",
+  "music-audio": "from-violet-400/30 to-purple-400/30",
+  "programming-tech": "from-green-400/30 to-teal-400/30",
+  "business": "from-blue-400/30 to-indigo-400/30",
+  "lifestyle": "from-pink-400/30 to-rose-300/30",
+  "ai-services": "from-cyan-400/30 to-blue-400/30",
+  "consulting": "from-slate-400/30 to-gray-300/30",
+};
+
+const categoryEmojis: Record<string, string> = {
+  "graphics-design": "🎨",
+  "digital-marketing": "📈",
+  "writing-translation": "✍️",
+  "video-animation": "🎬",
+  "music-audio": "🎵",
+  "programming-tech": "💻",
+  "business": "💼",
+  "lifestyle": "🌟",
+  "ai-services": "🤖",
+  "consulting": "🧠",
+};
+
 const GigCard = ({ gig }: { gig: Gig }) => {
+  const gradient = categoryGradients[gig.category] || "from-primary/20 to-accent/20";
+  const emoji = categoryEmojis[gig.category] || "💼";
+
   return (
     <Link to={`/gig/${gig.id}`} className="group block">
       <div className="bg-card rounded-lg border border-border overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1">
         {/* Image */}
         <div className="relative aspect-[16/10] bg-muted overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-            <span className="text-4xl opacity-30">{gig.category === "graphics-design" ? "🎨" : gig.category === "programming-tech" ? "💻" : gig.category === "writing-translation" ? "✍️" : gig.category === "video-animation" ? "🎬" : gig.category === "music-audio" ? "🎵" : gig.category === "ai-services" ? "🤖" : "💼"}</span>
+          <div className={`absolute inset-0 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+            <span className="text-5xl opacity-40">{emoji}</span>
           </div>
-          <button className="absolute top-2 right-2 p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-destructive transition-colors">
+          <button
+            className="absolute top-2 right-2 p-1.5 rounded-full bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-destructive transition-colors"
+            onClick={(e) => e.preventDefault()}
+          >
             <Heart className="h-4 w-4" />
           </button>
           {gig.isPro && (

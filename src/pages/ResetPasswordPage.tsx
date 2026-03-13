@@ -66,7 +66,7 @@ const ResetPasswordPage = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="text-3xl font-display font-bold text-gradient inline-block">giglance<span className="text-primary">.</span></Link>
+          <Link to="/" className="inline-block"><img src="/neoelectron-logo.svg" alt="Neoelectron" className="h-8 w-auto mx-auto" /></Link>
           <h1 className="text-2xl font-display font-bold text-foreground mt-4">Set new password</h1>
         </div>
 

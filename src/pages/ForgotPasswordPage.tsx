@@ -38,7 +38,7 @@ const ForgotPasswordPage = () => {
         </Link>
 
         <div className="text-center mb-8">
-          <Link to="/" className="text-3xl font-display font-bold text-gradient inline-block">giglance<span className="text-primary">.</span></Link>
+          <Link to="/" className="inline-block"><img src="/neoelectron-logo.svg" alt="Neoelectron" className="h-8 w-auto mx-auto" /></Link>
           <h1 className="text-2xl font-display font-bold text-foreground mt-4">Reset your password</h1>
           <p className="text-muted-foreground mt-1">We'll send you a link to reset it</p>
         </div>

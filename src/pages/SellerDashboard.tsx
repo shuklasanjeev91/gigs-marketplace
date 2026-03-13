@@ -55,13 +55,12 @@ function SellerSidebar() {
         <div className="px-4 py-5 border-b border-sidebar-border">
           {!collapsed && (
             <div>
-              <span className="text-lg font-display font-bold text-gradient">giglance</span>
-              <span className="text-primary text-lg font-bold">.</span>
+              <span className="text-lg font-display font-bold text-gradient">neoelectron</span>
               <p className="text-xs text-muted-foreground mt-0.5">Seller Dashboard</p>
             </div>
           )}
           {collapsed && (
-            <span className="text-lg font-display font-bold text-gradient">g</span>
+            <span className="text-lg font-display font-bold text-gradient">N</span>
           )}
         </div>
 
@@ -305,7 +304,7 @@ const GigRow = ({ gig, onDelete, onToggle }: { gig: Gig; onDelete: (id: string) 
         )}
       </div>
       <div className="text-right shrink-0">
-        <div className="text-xl font-display font-bold text-foreground">${gig.price}</div>
+        <div className="text-xl font-display font-bold text-foreground">₹{gig.price}</div>
         <div className="text-xs text-muted-foreground">starting</div>
       </div>
       <div className="flex gap-1 shrink-0">

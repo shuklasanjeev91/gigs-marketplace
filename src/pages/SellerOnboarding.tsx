@@ -82,7 +82,7 @@ const SellerOnboarding = () => {
       toast({ title: "Failed to create gig", description: error.message, variant: "destructive" });
     } else {
       await refreshProfile();
-      toast({ title: "Gig published! 🎉", description: "Your gig is now live on giglance." });
+      toast({ title: "Gig published! 🎉", description: "Your gig is now live on neoelectron." });
       navigate("/seller/dashboard");
     }
   };
@@ -228,7 +228,7 @@ const SellerOnboarding = () => {
                       value={price}
                       onChange={e => setPrice(e.target.value)}
                     />
-                    <p className="text-xs text-muted-foreground mt-1.5">Minimum $5. You can add package tiers later.</p>
+                    <p className="text-xs text-muted-foreground mt-1.5">Minimum ₹5. You can add package tiers later.</p>
                   </div>
 
                   <div>

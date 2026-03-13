@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <span className="text-2xl font-display font-bold">giglance<span className="text-primary">.</span></span>
+            <span className="text-2xl font-display font-bold">neoelectron</span>
             <p className="mt-3 text-sm opacity-70">Connecting talent with opportunity, one gig at a time.</p>
           </div>
           <div>
@@ -48,10 +48,10 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-12 pt-8 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm opacity-50">© 2026 giglance. All rights reserved.</p>
+          <p className="text-sm opacity-50">© 2026 neoelectron. All rights reserved.</p>
           <div className="flex items-center gap-4 text-sm opacity-50">
             <span>English</span>
-            <span>USD</span>
+            <span>₹ INR</span>
             <span>Accessibility</span>
           </div>
         </div>

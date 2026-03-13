@@ -103,7 +103,7 @@ const CheckoutPage = () => {
                   <p className="text-xs text-muted-foreground mt-0.5">by {gig.seller.name}</p>
                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {selectedPkg.delivery} days delivery</span>
-                    <span className="font-semibold text-foreground">${selectedPkg.price}</span>
+                    <span className="font-semibold text-foreground">₹{selectedPkg.price}</span>
                   </div>
                 </div>
               </div>
@@ -327,7 +327,7 @@ const CheckoutPage = () => {
                       </span>
                     ) : (
                       <>
-                        <Lock className="h-4 w-4 mr-2" /> Confirm & Pay ${total.toFixed(2)}
+                       <Lock className="h-4 w-4 mr-2" /> Confirm & Pay ₹{total.toFixed(2)}
                       </>
                     )}
                   </Button>
@@ -345,18 +345,18 @@ const CheckoutPage = () => {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{selectedPkg.name} Package</span>
-                    <span className="font-medium text-foreground">${selectedPkg.price}</span>
+                    <span className="font-medium text-foreground">₹{selectedPkg.price}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground flex items-center gap-1">
                       Service fee <Info className="h-3 w-3" />
                     </span>
-                    <span className="font-medium text-foreground">${serviceFee.toFixed(2)}</span>
+                    <span className="font-medium text-foreground">₹{serviceFee.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold">
                     <span className="text-foreground">Total</span>
-                    <span className="text-foreground">${total.toFixed(2)}</span>
+                    <span className="text-foreground">₹{total.toFixed(2)}</span>
                   </div>
                 </div>
 

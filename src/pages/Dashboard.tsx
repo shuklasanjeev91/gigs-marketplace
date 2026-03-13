@@ -77,7 +77,7 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 py-20 text-center">
           <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h1 className="text-3xl font-display font-bold text-foreground mb-2">You're not a seller yet</h1>
-          <p className="text-muted-foreground mb-6">Create your first gig and start earning on giglance</p>
+          <p className="text-muted-foreground mb-6">Create your first gig and start earning on neoelectron</p>
           <Link to="/become-seller">
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Plus className="h-4 w-4 mr-2" /> Become a Seller
@@ -194,7 +194,7 @@ const GigRow = ({ gig, onDelete, onToggle }: { gig: Gig; onDelete: (id: string) 
         )}
       </div>
       <div className="text-right shrink-0">
-        <div className="text-lg font-display font-bold text-foreground">${gig.price}</div>
+        <div className="text-lg font-display font-bold text-foreground">₹{gig.price}</div>
       </div>
       <div className="flex gap-1 shrink-0">
         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => onToggle(gig)} title={gig.status === "active" ? "Pause" : "Activate"}>

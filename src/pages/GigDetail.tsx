@@ -264,7 +264,7 @@ const GigDetail = () => {
                   {packages.map(pkg => (
                     <TabsContent key={pkg.name} value={pkg.name.toLowerCase()} className="p-5 mt-0">
                       <div className="flex items-baseline justify-between mb-4">
-                        <span className="text-3xl font-display font-bold text-foreground">${pkg.price}</span>
+                        <span className="text-3xl font-display font-bold text-foreground">₹{pkg.price}</span>
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                         <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {pkg.delivery} days</span>
@@ -278,7 +278,7 @@ const GigDetail = () => {
                         ))}
                       </ul>
                       <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11" onClick={() => handleContinueToCheckout(pkg.name)}>
-                        Continue (${pkg.price})
+                        Continue (₹{pkg.price})
                       </Button>
                     </TabsContent>
                   ))}

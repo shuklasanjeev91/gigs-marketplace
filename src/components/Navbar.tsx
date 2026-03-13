@@ -39,9 +39,8 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 bg-card border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 gap-4">
-          <Link to="/" className="flex items-center gap-1 shrink-0">
-            <span className="text-2xl font-display font-bold text-gradient">giglance</span>
-            <span className="text-primary text-2xl font-bold">.</span>
+          <Link to="/" className="flex items-center shrink-0">
+            <img src="/neoelectron-logo.svg" alt="Neoelectron" className="h-8 w-auto" />
           </Link>
 
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">

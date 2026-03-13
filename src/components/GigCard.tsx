@@ -67,7 +67,7 @@ const GigCard = ({ gig }: { gig: Gig }) => {
             </div>
             <div className="text-right">
               <span className="text-xs text-muted-foreground">From</span>
-              <span className="ml-1 text-base font-bold font-display text-foreground">${gig.price}</span>
+              <span className="ml-1 text-base font-bold font-display text-foreground">₹{gig.price}</span>
             </div>
           </div>
         </div>

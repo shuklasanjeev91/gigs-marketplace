@@ -15,7 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const stats = [
   { value: "890K+", label: "Active Freelancers" },
-  { value: "$2.4B+", label: "Earned by Freelancers" },
+  { value: "₹2.4B+", label: "Earned by Freelancers" },
   { value: "12M+", label: "Projects Completed" },
   { value: "195", label: "Countries Represented" },
 ];
@@ -51,12 +51,12 @@ const benefits = [
 ];
 
 const opportunities = [
-  { category: "Programming & Tech", title: "Build a mobile app", rate: "$150–$240/hour", type: "Project based", hours: "15–25 hours/week", desc: "Build a mobile application from planning and development through testing and launch." },
-  { category: "AI Services", title: "Develop AI applications", rate: "$160–$260/hour", type: "Project based", hours: "15–25 hours/week", desc: "Turn AI use cases into production-ready applications for enterprise clients." },
-  { category: "Graphics & Design", title: "Design brand identity", rate: "$100–$180/hour", type: "Project based", hours: "10–20 hours/week", desc: "Create complete visual identities including logos, guidelines, and brand collateral." },
-  { category: "Digital Marketing", title: "Run ad campaigns", rate: "$80–$150/hour", type: "Retainer", hours: "10–15 hours/week", desc: "Manage and optimize paid advertising campaigns across platforms." },
-  { category: "Writing & Translation", title: "Write technical docs", rate: "$60–$120/hour", type: "Project based", hours: "10–20 hours/week", desc: "Create clear documentation, API guides, and knowledge bases for tech products." },
-  { category: "Video & Animation", title: "Produce brand videos", rate: "$120–$200/hour", type: "Project based", hours: "15–25 hours/week", desc: "Produce high-quality promotional and explainer videos for businesses." },
+  { category: "Programming & Tech", title: "Build a mobile app", rate: "₹12,000–₹20,000/hour", type: "Project based", hours: "15–25 hours/week", desc: "Build a mobile application from planning and development through testing and launch." },
+  { category: "AI Services", title: "Develop AI applications", rate: "₹13,000–₹22,000/hour", type: "Project based", hours: "15–25 hours/week", desc: "Turn AI use cases into production-ready applications for enterprise clients." },
+  { category: "Graphics & Design", title: "Design brand identity", rate: "₹8,000–₹15,000/hour", type: "Project based", hours: "10–20 hours/week", desc: "Create complete visual identities including logos, guidelines, and brand collateral." },
+  { category: "Digital Marketing", title: "Run ad campaigns", rate: "₹6,500–₹12,500/hour", type: "Retainer", hours: "10–15 hours/week", desc: "Manage and optimize paid advertising campaigns across platforms." },
+  { category: "Writing & Translation", title: "Write technical docs", rate: "₹5,000–₹10,000/hour", type: "Project based", hours: "10–20 hours/week", desc: "Create clear documentation, API guides, and knowledge bases for tech products." },
+  { category: "Video & Animation", title: "Produce brand videos", rate: "₹10,000–₹17,000/hour", type: "Project based", hours: "15–25 hours/week", desc: "Produce high-quality promotional and explainer videos for businesses." },
 ];
 
 const testimonials = [
@@ -77,7 +77,7 @@ const testimonials = [
   {
     name: "Priya M.",
     role: "Content Strategist",
-    quote: "Fiverr gave me the freedom to work with global brands while living on my own terms. The community support is incredible.",
+    quote: "Neoelectron gave me the freedom to work with global brands while living on my own terms. The community support is incredible.",
     stats: ["Vetted Pro", "800+ orders", "Rated 4.8★"],
     initials: "PM",
   },
@@ -128,7 +128,7 @@ const BecomeASeller = () => {
             className="max-w-3xl mx-auto text-center"
           >
             <p className="text-primary font-medium text-sm tracking-wide uppercase mb-4">
-              Become a giglance freelancer
+              Become a Neoelectron freelancer
             </p>
             <h1 className="text-4xl md:text-6xl font-display font-bold text-white mb-6 leading-tight">
               Grow a global business from{" "}

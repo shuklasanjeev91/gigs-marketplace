@@ -140,9 +140,6 @@ const Navbar = () => {
                       <Heart className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link to="/orders">
-                    <Button variant="ghost" size="sm" className="text-sm">Orders</Button>
-                  </Link>
                 </div>
 
                 <DropdownMenu>
@@ -165,27 +162,26 @@ const Navbar = () => {
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="cursor-pointer">Dashboard</Link>
                     </DropdownMenuItem>
-                    {profile?.is_seller && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/seller/dashboard" className="cursor-pointer">Seller Dashboard</Link>
-                      </DropdownMenuItem>
-                    )}
                     <DropdownMenuItem asChild><Link to="/orders" className="cursor-pointer">Orders</Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link to="/notifications" className="cursor-pointer">Notifications</Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link to="/messages" className="cursor-pointer">Messages</Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link to="/favorites" className="cursor-pointer">Favorites</Link></DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild><Link to="/settings" className="cursor-pointer">Settings</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/business/dashboard" className="cursor-pointer flex items-center gap-2">
-                        <Building2 className="h-3.5 w-3.5" /> Business Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin" className="cursor-pointer flex items-center gap-2">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Platform Admin
-                      </Link>
-                    </DropdownMenuItem>
+                    {profile?.is_admin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link to="/business/dashboard" className="cursor-pointer flex items-center gap-2">
+                            <Building2 className="h-3.5 w-3.5" /> Business Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin" className="cursor-pointer flex items-center gap-2">
+                            <ShieldCheck className="h-3.5 w-3.5" /> Platform Admin
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleSignOut}>
                       Sign Out
@@ -318,8 +314,12 @@ const Navbar = () => {
                 <Link to="/notifications" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Notifications</Link>
                 <Link to="/orders" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Orders</Link>
                 <Link to="/dashboard" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
-                <Link to="/business/dashboard" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Business Dashboard</Link>
-                <Link to="/admin" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Platform Admin</Link>
+                {profile?.is_admin && (
+                  <>
+                    <Link to="/business/dashboard" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Business Dashboard</Link>
+                    <Link to="/admin" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Platform Admin</Link>
+                  </>
+                )}
                 <button className="py-2 text-sm font-medium text-destructive text-left" onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}>Sign Out</button>
               </>
             ) : (

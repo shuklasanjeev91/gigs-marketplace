@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Menu, X, Bell, MessageCircle, Heart, ChevronDown, Building2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { categories } from "@/lib/data";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+
+const MEGA_MENU_CLOSE_DELAY_MS = 120;
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const megaMenuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
+
+  const openMegaMenu = (catId: string) => {
+    if (megaMenuCloseTimer.current) clearTimeout(megaMenuCloseTimer.current);
+    setActiveMegaMenu(catId);
+  };
+
+  const closeMegaMenu = () => {
+    megaMenuCloseTimer.current = setTimeout(() => setActiveMegaMenu(null), MEGA_MENU_CLOSE_DELAY_MS);
+  };
+
+  const keepMegaMenuOpen = () => {
+    if (megaMenuCloseTimer.current) clearTimeout(megaMenuCloseTimer.current);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,18 +213,58 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Category bar */}
-      <div className="hidden lg:block border-t border-border bg-card">
+      {/* Category bar with mega menus */}
+      <div className="hidden lg:block border-t border-border bg-card relative">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-6 h-10 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-6 h-10">
             {categories.map(cat => (
-              <Link
+              <div
                 key={cat.id}
-                to={`/categories/${cat.id}`}
-                className="text-sm text-muted-foreground hover:text-primary whitespace-nowrap transition-colors"
+                className="relative flex items-center h-full"
+                onMouseEnter={() => openMegaMenu(cat.id)}
+                onMouseLeave={closeMegaMenu}
               >
-                {cat.name}
-              </Link>
+                <Link
+                  to={`/categories/${cat.id}`}
+                  className={cn(
+                    "text-sm whitespace-nowrap transition-colors flex items-center gap-1 h-full",
+                    activeMegaMenu === cat.id ? "text-primary" : "text-muted-foreground hover:text-primary"
+                  )}
+                >
+                  {cat.name}
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", activeMegaMenu === cat.id && "rotate-180 text-primary")} />
+                </Link>
+
+                {/* Mega menu panel */}
+                {activeMegaMenu === cat.id && (
+                  <div
+                    className="absolute top-full left-0 z-50 mt-0 w-56 bg-card border border-border rounded-b-lg shadow-lg py-2"
+                    onMouseEnter={keepMegaMenuOpen}
+                    onMouseLeave={closeMegaMenu}
+                  >
+                    <div className="px-3 pb-1 mb-1 border-b border-border">
+                      <Link
+                        to={`/categories/${cat.id}`}
+                        className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
+                        onClick={() => setActiveMegaMenu(null)}
+                      >
+                        <span>{cat.icon}</span>
+                        {cat.name}
+                      </Link>
+                    </div>
+                    {cat.subcategories.map(sub => (
+                      <Link
+                        key={sub}
+                        to={`/categories/${cat.id}?sub=${encodeURIComponent(sub)}`}
+                        className="block px-3 py-1.5 text-sm text-muted-foreground hover:text-primary hover:bg-secondary/60 transition-colors"
+                        onClick={() => setActiveMegaMenu(null)}
+                      >
+                        {sub}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>

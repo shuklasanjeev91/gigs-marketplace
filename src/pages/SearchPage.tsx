@@ -33,8 +33,8 @@ const SearchPage = () => {
   const { data: gigs = [], isLoading } = useGigs({
     query,
     category: selectedCategory,
-    priceMin: priceRange[0],
-    priceMax: priceRange[1],
+    priceMin: priceRange[0] > 0 ? priceRange[0] : undefined,
+    priceMax: priceRange[1] < 500 ? priceRange[1] : undefined,
     deliveryDays: selectedDelivery,
     sellerLevel: selectedLevel,
     sortBy,

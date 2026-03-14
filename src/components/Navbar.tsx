@@ -88,9 +88,15 @@ const Navbar = () => {
                 </Button>
               </Link>
               {user ? (
-                <Link to="/seller/dashboard">
-                  <Button variant="ghost" size="sm" className="text-sm font-medium text-primary">Switch to Selling</Button>
-                </Link>
+                profile?.is_seller ? (
+                  <Link to="/seller/dashboard">
+                    <Button variant="ghost" size="sm" className="text-sm font-medium text-primary">Seller Dashboard</Button>
+                  </Link>
+                ) : (
+                  <Link to="/buyer/dashboard">
+                    <Button variant="ghost" size="sm" className="text-sm font-medium text-primary">My Dashboard</Button>
+                  </Link>
+                )
               ) : (
                 <Link to="/become-seller">
                   <Button variant="ghost" size="sm" className="text-sm font-medium">Become a Seller</Button>
@@ -138,7 +144,14 @@ const Navbar = () => {
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild><Link to="/profile" className="cursor-pointer">Profile</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link to="/seller/dashboard" className="cursor-pointer">Dashboard</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/dashboard" className="cursor-pointer">Dashboard</Link>
+                    </DropdownMenuItem>
+                    {profile?.is_seller && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/seller/dashboard" className="cursor-pointer">Seller Dashboard</Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild><Link to="/orders" className="cursor-pointer">Orders</Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link to="/notifications" className="cursor-pointer">Notifications</Link></DropdownMenuItem>
                     <DropdownMenuItem asChild><Link to="/messages" className="cursor-pointer">Messages</Link></DropdownMenuItem>
@@ -222,7 +235,11 @@ const Navbar = () => {
               <span className="text-primary font-semibold">Pro</span>
             </Link>
             {user ? (
-              <Link to="/seller/dashboard" className="py-2 text-sm font-medium text-primary" onClick={() => setMobileMenuOpen(false)}>Switch to Selling</Link>
+              profile?.is_seller ? (
+                <Link to="/seller/dashboard" className="py-2 text-sm font-medium text-primary" onClick={() => setMobileMenuOpen(false)}>Seller Dashboard</Link>
+              ) : (
+                <Link to="/buyer/dashboard" className="py-2 text-sm font-medium text-primary" onClick={() => setMobileMenuOpen(false)}>My Dashboard</Link>
+              )
             ) : (
               <Link to="/become-seller" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>Become a Seller</Link>
             )}

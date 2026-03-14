@@ -28,6 +28,8 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import RoleBasedDashboard from "./components/RoleBasedDashboard.tsx";
+import BuyerDashboard from "./pages/BuyerDashboard.tsx";
 import BusinessDashboard from "./pages/BusinessDashboard.tsx";
 import TalentLineupPage from "./pages/TalentLineupPage.tsx";
 import ProjectManagementPage from "./pages/ProjectManagementPage.tsx";
@@ -60,7 +62,8 @@ const App = () => (
             <Route path="/categories" element={<CategoryPage />} />
             <Route path="/categories/:id" element={<CategoryPage />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<Navigate to="/seller/dashboard" replace />} />
+            <Route path="/dashboard" element={<ProtectedRoute><RoleBasedDashboard /></ProtectedRoute>} />
+            <Route path="/buyer/dashboard" element={<ProtectedRoute><BuyerDashboard /></ProtectedRoute>} />
             <Route path="/seller/dashboard" element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>} />
             <Route path="/seller/setup" element={<ProtectedRoute><SellerSetupPage /></ProtectedRoute>} />
             <Route path="/seller/onboarding" element={<ProtectedRoute><SellerOnboarding /></ProtectedRoute>} />

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { GigCardData } from "@/lib/data";
+import { mockGigs, filterMockGigs } from "@/lib/mockGigs";
 
 export interface UseGigsOptions {
   query?: string;
@@ -29,7 +30,11 @@ export function useGigs(options: UseGigsOptions = {}) {
           .eq("seller_level", options.sellerLevel)
           .eq("is_seller", true);
 
-        if (!levelProfiles || levelProfiles.length === 0) return [];
+        if (!levelProfiles || levelProfiles.length === 0) {
+          // No matching real sellers – still show filtered mock gigs
+          if (!options.sellerId) return filterMockGigs(mockGigs, options);
+          return [];
+        }
         sellerIdFilter = levelProfiles.map((p) => p.user_id);
       }
 
@@ -74,8 +79,20 @@ export function useGigs(options: UseGigsOptions = {}) {
       }
 
       const { data: gigsData, error: gigsError } = await gigsQuery;
-      if (gigsError) throw gigsError;
-      if (!gigsData || gigsData.length === 0) return [];
+      if (gigsError) {
+        // Supabase unreachable – return filtered mock gigs so the UI isn't empty
+        if (!options.sellerId) {
+          return filterMockGigs(mockGigs, options);
+        }
+        return [];
+      }
+      if (!gigsData || gigsData.length === 0) {
+        // No real gigs – fall through so mock gigs are appended below
+        if (!options.sellerId) {
+          return filterMockGigs(mockGigs, options);
+        }
+        return [];
+      }
 
       // ── 3. Enrich with seller profile ─────────────────────────────────────
       const sellerIds = [...new Set(gigsData.map((g) => g.seller_id))];
@@ -134,6 +151,18 @@ export function useGigs(options: UseGigsOptions = {}) {
         result = result.sort((a, b) => (b.review_count ?? 0) - (a.review_count ?? 0));
       }
 
+      // ── 6. Merge with mock gigs (real gigs take priority) ─────────────────
+      // Skip mock gigs when filtering by a specific real seller
+      if (!options.sellerId) {
+        const filteredMock = filterMockGigs(mockGigs, options);
+        // Deduplicate: exclude mock gigs whose id already exists in real results
+        const realIds = new Set(result.map((g) => g.id));
+        const newMock = filteredMock.filter((g) => !realIds.has(g.id));
+        // Real gigs always fill first; mock gigs fill remaining slots up to limit
+        const remaining = options.limit ? Math.max(0, options.limit - result.length) : newMock.length;
+        result = [...result, ...newMock.slice(0, remaining)];
+      }
+
       return result;
     },
   });
@@ -146,6 +175,12 @@ export function useGig(id: string | undefined) {
     enabled: !!id,
     queryFn: async (): Promise<GigCardData | null> => {
       if (!id) return null;
+
+      // Return mock gig directly when the ID starts with "mock-"
+      if (id.startsWith("mock-")) {
+        return mockGigs.find((g) => g.id === id) ?? null;
+      }
+
       const { data: gig, error } = await supabase
         .from("gigs")
         .select("id, title, category, price, delivery_days, tags, image_url, seller_id, description")

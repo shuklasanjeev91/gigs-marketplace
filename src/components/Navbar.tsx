@@ -213,61 +213,73 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Category bar with mega menus */}
+      {/* Category bar with full-width mega menus */}
       <div className="hidden lg:block border-t border-border bg-card relative">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-6 h-10">
             {categories.map(cat => (
               <div
                 key={cat.id}
-                className="relative flex items-center h-full"
+                className="flex items-center h-full"
                 onMouseEnter={() => openMegaMenu(cat.id)}
                 onMouseLeave={closeMegaMenu}
               >
                 <Link
                   to={`/categories/${cat.id}`}
                   className={cn(
-                    "text-sm whitespace-nowrap transition-colors flex items-center gap-1 h-full",
-                    activeMegaMenu === cat.id ? "text-primary" : "text-muted-foreground hover:text-primary"
+                    "text-sm whitespace-nowrap transition-colors flex items-center gap-1 h-full border-b-2",
+                    activeMegaMenu === cat.id
+                      ? "text-primary border-primary"
+                      : "text-muted-foreground hover:text-primary border-transparent"
                   )}
                 >
                   {cat.name}
-                  <ChevronDown className={cn("h-3 w-3 transition-transform", activeMegaMenu === cat.id && "rotate-180 text-primary")} />
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", activeMegaMenu === cat.id && "rotate-180")} />
                 </Link>
-
-                {/* Mega menu panel */}
-                {activeMegaMenu === cat.id && (
-                  <div
-                    className="absolute top-full left-0 z-50 mt-0 w-56 bg-card border border-border rounded-b-lg shadow-lg py-2"
-                    onMouseEnter={keepMegaMenuOpen}
-                    onMouseLeave={closeMegaMenu}
-                  >
-                    <div className="px-3 pb-1 mb-1 border-b border-border">
-                      <Link
-                        to={`/categories/${cat.id}`}
-                        className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
-                        onClick={() => setActiveMegaMenu(null)}
-                      >
-                        <span>{cat.icon}</span>
-                        {cat.name}
-                      </Link>
-                    </div>
-                    {cat.subcategories.map(sub => (
-                      <Link
-                        key={sub}
-                        to={`/categories/${cat.id}?sub=${encodeURIComponent(sub)}`}
-                        className="block px-3 py-1.5 text-sm text-muted-foreground hover:text-primary hover:bg-secondary/60 transition-colors"
-                        onClick={() => setActiveMegaMenu(null)}
-                      >
-                        {sub}
-                      </Link>
-                    ))}
-                  </div>
-                )}
               </div>
             ))}
           </div>
         </div>
+
+        {/* Full-width mega menu panel */}
+        {activeMegaMenu && (
+          <div
+            className="absolute top-full left-0 right-0 z-50 bg-card border-b border-border shadow-xl"
+            onMouseEnter={keepMegaMenuOpen}
+            onMouseLeave={closeMegaMenu}
+          >
+            <div className="container mx-auto px-4 py-6">
+              {(() => {
+                const cat = categories.find(c => c.id === activeMegaMenu);
+                if (!cat) return null;
+                return (
+                  <div className="grid grid-cols-4 gap-8">
+                    {cat.megaMenuSections?.map(section => (
+                      <div key={section.title}>
+                        <h3 className="font-semibold text-sm text-foreground mb-3 pb-2 border-b border-border">
+                          {section.title}
+                        </h3>
+                        <ul className="space-y-2">
+                          {section.items.map(item => (
+                            <li key={item}>
+                              <Link
+                                to={`/categories/${cat.id}?sub=${encodeURIComponent(item)}`}
+                                className="block text-sm text-muted-foreground hover:text-primary transition-colors"
+                                onClick={() => setActiveMegaMenu(null)}
+                              >
+                                {item}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mobile menu */}

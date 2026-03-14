@@ -328,6 +328,7 @@ function DashboardContent() {
   const pausedGigs = gigs.filter(g => g.status !== "active");
   const completedOrders = orders.filter(o => o.status === "completed").length;
   const pendingOrders = orders.filter(o => ["pending", "in_progress", "delivered"].includes(o.status));
+  const finishedOrders = orders.filter(o => ["completed", "cancelled"].includes(o.status));
   const sellerLevel = profile?.seller_level || "New";
 
   if (!profile?.is_seller) {
@@ -459,7 +460,7 @@ function DashboardContent() {
               <Tabs defaultValue="active-orders">
                 <TabsList className="mb-4">
                   <TabsTrigger value="active-orders">Active ({pendingOrders.length})</TabsTrigger>
-                  <TabsTrigger value="all-orders">All ({orders.length})</TabsTrigger>
+                  <TabsTrigger value="completed-orders">Completed ({finishedOrders.length})</TabsTrigger>
                 </TabsList>
                 <TabsContent value="active-orders">
                   {pendingOrders.length === 0 ? (
@@ -471,8 +472,15 @@ function DashboardContent() {
                     <div className="space-y-3">{pendingOrders.map(order => <OrderRow key={order.id} order={order} onStatusChange={handleOrderStatusChange} />)}</div>
                   )}
                 </TabsContent>
-                <TabsContent value="all-orders">
-                  <div className="space-y-3">{orders.map(order => <OrderRow key={order.id} order={order} onStatusChange={handleOrderStatusChange} />)}</div>
+                <TabsContent value="completed-orders">
+                  {finishedOrders.length === 0 ? (
+                    <Card className="p-8 text-center shadow-card">
+                      <ShoppingCart className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-muted-foreground">No completed orders yet.</p>
+                    </Card>
+                  ) : (
+                    <div className="space-y-3">{finishedOrders.map(order => <OrderRow key={order.id} order={order} onStatusChange={handleOrderStatusChange} />)}</div>
+                  )}
                 </TabsContent>
               </Tabs>
             )}

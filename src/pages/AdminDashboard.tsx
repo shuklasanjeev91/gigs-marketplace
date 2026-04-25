@@ -78,7 +78,7 @@ interface PolicyItem {
 }
 
 const DEMO_USERS: AdminUser[] = [
-  { id: "u1", display_name: "Arjun Sharma", email: "arjun@example.com", role: "seller", status: "active", joined_at: "2024-03-10", total_orders: 42 },
+  { id: "u1", display_name: "Alex Rivera", email: "alex@example.com", role: "seller", status: "active", joined_at: "2024-03-10", total_orders: 42 },
   { id: "u2", display_name: "Priya Patel", email: "priya@example.com", role: "buyer", status: "active", joined_at: "2024-05-22", total_orders: 8 },
   { id: "u3", display_name: "Carlos M.", email: "carlos@example.com", role: "seller", status: "under_review", joined_at: "2024-08-01", total_orders: 3 },
   { id: "u4", display_name: "Elena K.", email: "elena@example.com", role: "buyer", status: "suspended", joined_at: "2023-11-14", total_orders: 1 },
@@ -86,10 +86,10 @@ const DEMO_USERS: AdminUser[] = [
 ];
 
 const DEMO_ORDERS: AdminOrder[] = [
-  { id: "o1", buyer: "Priya Patel", seller: "Arjun Sharma", gig_title: "Logo Design", price: 3500, status: "completed", created_at: "2025-05-01" },
+  { id: "o1", buyer: "Priya Patel", seller: "Alex Rivera", gig_title: "Logo Design", price: 3500, status: "completed", created_at: "2025-05-01" },
   { id: "o2", buyer: "Raj Kumar", seller: "Yuki T.", gig_title: "Mobile App UI", price: 12000, status: "disputed", created_at: "2025-05-10" },
   { id: "o3", buyer: "Elena K.", seller: "Carlos M.", gig_title: "SEO Audit", price: 2000, status: "refunded", created_at: "2025-04-28" },
-  { id: "o4", buyer: "Sam R.", seller: "Arjun Sharma", gig_title: "Brand Kit", price: 5500, status: "in_progress", created_at: "2025-05-12" },
+  { id: "o4", buyer: "Sam R.", seller: "Alex Rivera", gig_title: "Brand Kit", price: 5500, status: "in_progress", created_at: "2025-05-12" },
 ];
 
 const DEMO_VET_QUEUE: SellerVetEntry[] = [

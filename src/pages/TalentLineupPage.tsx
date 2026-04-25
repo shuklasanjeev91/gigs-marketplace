@@ -22,7 +22,7 @@ const DEMO_TALENT: TalentEntry[] = [
   {
     id: "t1",
     seller_id: "s1",
-    display_name: "Arjun Sharma",
+    display_name: "Alex Rivera",
     specialty: "Logo Design & Branding",
     average_rating: 4.9,
     total_orders: 12,

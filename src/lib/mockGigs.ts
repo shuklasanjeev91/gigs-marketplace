@@ -2,7 +2,7 @@ import type { GigCardData } from "@/lib/data";
 
 /**
  * Mock gig data covering 50 service categories with 100 gigs per category
- * (5 000 gigs total). Generated programmatically from CATEGORY_SPECS.
+ * (5,000 gigs total). Generated programmatically from CATEGORY_SPECS.
  * IDs are prefixed with "mock-" so they are distinguishable from Supabase rows.
  */
 

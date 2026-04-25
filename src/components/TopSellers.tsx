@@ -27,9 +27,9 @@ const TopSellers = () => {
         <div className="flex items-end justify-between mb-10">
           <div>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-              Work with the best
+              Meet our top freelancers
             </h2>
-            <p className="text-muted-foreground mt-2">Our top-rated freelancers are ready to help</p>
+            <p className="text-muted-foreground mt-2">Skilled, reviewed, and ready to get started</p>
           </div>
           <Link to="/search" className="hidden md:block text-sm font-medium text-primary hover:underline">
             See all sellers

@@ -17,9 +17,9 @@ const PopularServices = () => {
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">
-            Popular services
+            Browse by service type
           </h2>
-          <p className="text-muted-foreground">Browse top-rated services across all categories</p>
+          <p className="text-muted-foreground">Switch categories to discover top-rated services</p>
         </div>
 
         {/* Category tabs */}

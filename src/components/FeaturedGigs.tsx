@@ -13,10 +13,10 @@ const FeaturedGigs = ({ title = "Popular Services", category }: { title?: string
         <div className="flex items-end justify-between mb-10">
           <div>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">{title}</h2>
-            <p className="text-muted-foreground mt-2">Hand-picked services for you</p>
+            <p className="text-muted-foreground mt-2">Curated picks from our top-performing freelancers</p>
           </div>
           <Link to="/search" className="hidden md:flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-            See All <ArrowRight className="h-4 w-4" />
+            Browse All <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
